@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <ImageView
+      android:layout_marginLeft="3dp"
+        android:id="@id/view_list_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+   
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:textColor="#555555"
+            android:id="@id/view_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:gravity="left|center"
+      		android:layout_marginLeft="6dp"
+            android:singleLine="true"
+            android:textSize="16sp" />
+        
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="-3dp"
+            android:layout_weight="4" >
+            <TextView
+            android:layout_marginLeft="3dp"
+   			android:layout_weight="1"
+			android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:id="@id/view_list_size"
+            android:singleLine="true"
+            android:textColor="@color/grey"
+            android:textSize="13sp" />
+            <TextView
+   			android:layout_weight="1"
+			android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:id="@id/view_list_time"
+            android:singleLine="true"
+            android:textColor="@color/grey"
+            android:textSize="13sp" />
+        </LinearLayout>
+
+        
+        
+    </LinearLayout>
+    
+<!--         <TextView
+            android:layout_marginTop="-3dp"
+            android:layout_marginLeft="2dp"
+            android:layout_gravity="top"
+            android:id="@+id/view_list_adapter_decs"
+            android:singleLine="true"
+            android:text="TextView"
+            android:textColor="@color/grey"
+            android:textSize="12sp" /> -->
+</LinearLayout>

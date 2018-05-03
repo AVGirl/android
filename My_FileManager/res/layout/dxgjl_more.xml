@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/multiSelectOperateToolbar_hideMore"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RadioGroup
+        android:id="@+id/dxgjl_more_RadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_paste"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_paste"
+            android:text="粘贴" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_shortcuts"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_shortcuts"
+            android:text="桌面快捷方式" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_refresh"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_refresh"
+            android:text="刷新" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_favorites"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_favorites"
+            android:text="添加到收藏" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_property"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_property"
+            android:text="属性" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_addToHome"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_setting"
+            android:text="添加到主页" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_copyPath"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_setting"
+            android:text="复制路径" />
+
+        <RadioButton
+            android:id="@+id/dxgjl_more_share"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_setting"
+            android:text="分享" />
+        
+        <RadioButton
+            android:id="@+id/dxgjl_more_newWin"
+            style="@style/dxgjl_more"
+            android:drawableLeft="@drawable/toolbar_setting"
+            android:text="新窗口打开" />
+        
+    </RadioGroup>
+
+</LinearLayout>

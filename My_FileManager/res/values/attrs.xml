@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ 
+    <attr name="titleText" format="string" />
+    <attr name="titleTextColor" format="color" />
+    <attr name="titleTextSize" format="dimension" />
+
+    <declare-styleable name="CustomTitleView">
+        <attr name="titleText" />
+        <attr name="titleTextColor" />
+        <attr name="titleTextSize" />
+    </declare-styleable>
+    
+
+
+      <attr name="text1" format="string" />
+       <attr name="okint" format="integer"/>  
+
+    
+   
+     <declare-styleable name="test1">
+        <attr name="text"  >
+            <flag name="aaa" value="99"/>
+        </attr>
+  
+       <attr name ="android:text" />
+      <attr name="text1546" format="string" />
+       <attr name="okin45654" format="integer"/>
+   </declare-styleable> 
+   
+</resources>

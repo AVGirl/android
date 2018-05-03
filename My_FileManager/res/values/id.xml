@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">   
+    <item name="view_list_icon" type="id"/>
+    <item name="view_list_name" type="id"/>
+    <item name="view_list_size" type="id"/>
+    <item name="view_list_time" type="id"/>
+   
+       
+    
+      <item name="gridView" type="id"/>
+      <item name="listView" type="id"/>
+        <item name="editText" type="id"/>
+   <item name="imageView" type="id"/>
+   <item name="textView" type="id"/>
+      <item name="button" type="id"/>
+      <item name="button_a" type="id"/>
+     <item name="button_b" type="id"/>
+          <item name="button_x" type="id"/>
+          
+          
+          
+           <item name="preview_pic_tool_next" type="id"/>
+     <item name="preview_pic_tool_close" type="id"/>          
+     <item name="preview_pic_tool_openWith" type="id"/>
+    <item name="preview_pic_tool_prev" type="id"/>
+    <item name="preview_pic_tool_delete" type="id"/>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <RadioGroup
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:id="@+id/main_toolbar_RadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" >
+                          
+  
+
+        <RadioButton
+            android:id="@+id/main_toolbar_search"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_search"
+            android:text="搜索" />
+
+        <RadioButton
+            android:id="@+id/main_toolbar_menu"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_more"
+            android:text="菜单" />
+      			
+      			<RadioButton
+            android:id="@+id/main_toolbar_viewSortBy"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_view"
+            android:text="视图" />
+      
+      
+            <RadioButton
+            android:id="@+id/main_toolbar_windows"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_windows"
+            android:text="窗口" />
+        <RadioButton
+            android:id="@+id/main_toolbar_home"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_gohome"
+            android:text="主页" />
+   
+            
+                   <RadioButton
+            android:id="@+id/main_toolbar_return"
+            style="@style/main_toolbar"
+            android:drawableTop="@drawable/toolbar_return"
+            android:text="后退" />
+        
+    </RadioGroup>
+
+</LinearLayout>

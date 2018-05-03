@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="属性"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    
+    
+    
+       	
+    	<!--                       【图像】                                        -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/a1001_img"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/format_apk" />
+
+        <TextView
+          android:id="@+id/a1001_fileName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center|left"
+            android:paddingLeft="3dp"
+            android:textColor="#000"
+            android:text="TextView"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/grey" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="类型:"
+            android:textSize="16sp" />
+
+        <TextView
+android:id="@+id/a1001_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="mp3"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
+   	
+    	<!--                       【路径】                                        -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="路径:"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/a1001_path"
+                       android:textColor="@color/blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="/FDS//FDS/F/SD/F"
+            android:textSize="16sp" />      
+    </LinearLayout>
+    <View 
+    android:layout_width="match_parent"
+    android:layout_height="4dp"
+/>
+       	
+    	<!--                       【复制】                                        -->
+    
+    	<LinearLayout
+    	    android:layout_marginLeft="50dp"
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="30dp" >
+        
+    	        <Button
+    	            android:id="@+id/a1001_copyPath"
+    	            android:textColor="#fff"
+    	            android:background="@drawable/dialog_file_menu_onclick_btn_style"
+    	            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="复制"
+            android:textSize="12sp" />
+    	        <View 
+    android:layout_width="5dp"
+    android:layout_height="match_parent"
+/>
+    	          
+    	        <Button
+    	            android:id="@+id/a1001_copyWholePath"
+    	            android:textColor="#fff"
+    	             android:background="@drawable/dialog_file_menu_onclick_btn_style"
+    	            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="复制全路径"
+            android:textSize="12sp" />
+    	    
+	</LinearLayout>
+    
+    
+    
+    
+    	
+    	<!--                       【大小】                                        -->
+    
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="大小:"
+            android:textSize="16sp" />
+
+        <TextView
+      android:id="@+id/a1001_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="888kb"
+            android:textSize="16sp" />
+    </LinearLayout>
+    	
+    
+
+    	
+    	<!--                       【修改日期】                                        -->
+    
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+          
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="修改日期:"
+            android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/a1001_modified"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="2018-1-11 07:35"
+            android:textSize="16sp" />
+    </LinearLayout>
+    	
+    	<!-- 
+    	                      【创建日期】                                       
+    
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="创建日期:"
+            android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/a1001_createDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="2018-1-11 07:35"
+            android:textSize="16sp" />
+    </LinearLayout>
+     -->
+     
+     <View 
+    android:layout_width="match_parent"
+    android:layout_height="5dp"
+/>
+        <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+          
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="可读:"
+            android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/a1001_canRead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
+            android:text="true"
+            android:textSize="16sp" />
+    </LinearLayout>
+            <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+          
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="可写:"
+            android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/a1001_canWrite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="ture"
+            android:textSize="16sp" />
+    </LinearLayout>
+            <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+          
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="隐藏:"
+            android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/a1001_hidden"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="false"
+            android:textSize="16sp" />
+    </LinearLayout>
+    
+   <!--                       【备注】                                        -->
+  
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="备注:"
+            android:textSize="16sp" />
+     <TextView
+         android:id="@+id/a1001_ps"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+     
+     
+     
+     
+     
+     
+          <Button
+    	            android:id="@+id/a1001_cancle"
+    	            android:textColor="#fff"
+    	            android:background="@drawable/dialog_file_menu_onclick_btn_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="取 消"
+            android:textSize="18sp" />
+     
+     
+     
+     
+     
+     
+     
+    
+</LinearLayout>

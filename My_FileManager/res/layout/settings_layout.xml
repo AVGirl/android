@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/btn_style"
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">   
+     <RadioButton 
+         
+    style="@style/settings_radioState"
+    android:drawableRight="@drawable/settings_check_ok"
+    android:id="@+id/AppSettings_showHiddenFile" 
+    android:text="显示隐藏文件"
+    /> 
+     </LinearLayout>
+     
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">   
+     <RadioButton 
+         
+    style="@style/settings_radioState"
+    android:id="@+id/AppSettings_homeDir" 
+    android:text="设置首页路径"
+    /> 
+     </LinearLayout>
+     
+   
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">   
+     <RadioButton 
+         
+    style="@style/settings_radioState"
+    android:id="@+id/AppSettings_thumbnail" 
+    android:text="图像缩略图"
+    /> 
+     </LinearLayout>
+     
+   
+      
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">   
+     <RadioButton 
+         
+    style="@style/settings_radioState"
+    android:id="@+id/AppSettings_show_thumbnail" 
+    android:text="显示缩略图"
+    /> 
+     </LinearLayout>
+     
+    
+          
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">   
+     <RadioButton 
+         
+    style="@style/settings_radioState"
+    android:id="@+id/AppSettings_setbackgroup" 
+    android:text="设置背景"
+    /> 
+     </LinearLayout>
+     
+  
+</LinearLayout>
+      

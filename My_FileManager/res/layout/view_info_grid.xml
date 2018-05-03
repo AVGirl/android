@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:layout_gravity="center"
+        android:id="@id/view_list_icon"
+        android:layout_width="50dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="5dp"
+        android:src="@drawable/format_zip" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="vertical" >
+
+        <TextView
+            style="@style/viewAdapter_name"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:gravity="left|bottom"
+            android:singleLine="true"
+            android:text="欢子 - 心痛2009" />
+<!-- 	<View
+	    android:layout_weight="1"
+	     android:layout_height="0dp" android:layout_width="match_parent"/> -->
+        <TextView
+            android:id="@id/view_list_size"
+            style="@style/viewAdapter_desc"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="2"
+            android:gravity="center|left"
+            android:singleLine="true"
+            android:text="500 mb" />
+
+        <TextView
+            android:id="@id/view_list_time"
+            style="@style/viewAdapter_desc"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="2"
+            android:gravity="center|left"
+            android:singleLine="true"
+            android:text="2017-12-29 12:08" />
+    </LinearLayout>
+
+</LinearLayout>

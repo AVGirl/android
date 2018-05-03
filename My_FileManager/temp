@@ -1,0 +1,16 @@
+	File f2[]= 	new File( ff.getsdpath()).listFiles();
+		for(int i=0; i< f2.length ;i++){
+			File f =f2[i];
+			f.getName();
+			f.lastModified();
+		String size=f.length()/1024/1024+" Mb";  
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(f.lastModified());
+			//cal.getTime().toLocaleString();
+
+			String time= sdf.format(cal.getTime());
+		//String fileName, String modified, String size,long modifiedLong
+			FileInfo fi=new FileInfo(f.getName(),time,size,f.lastModified());
+			ff.log(cal.getTime().toLocaleString(),time);

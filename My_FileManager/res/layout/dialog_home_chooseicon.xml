@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:textColor="#000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="选择图标"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/grey" />
+
+<!--     <ScrollView
+        android:measureAllChildren="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" > -->
+    <GridView
+            android:tag="gridView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:horizontalSpacing="5dp"
+            android:numColumns="5"
+            android:verticalSpacing="5dp" >
+        </GridView>
+   
+<!--     </ScrollView> -->
+ 
+</LinearLayout>

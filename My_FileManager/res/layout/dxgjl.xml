@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 多选工具栏  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+    <!--///////////////////////////////////////////////////////  -->
+    <LinearLayout 
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_margin="3dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal" >
+        
+        <RadioGroup
+            android:orientation="horizontal"
+             android:layout_width="match_parent" android:layout_height="50dp" 
+            android:id="@+id/dxgjl_RadioGroup">
+        <RadioButton
+            style="@style/dxmrgj"
+            android:text="复制"
+            android:drawableTop="@drawable/toolbar_copy"
+            android:id="@+id/dxgjl_copy" 
+            
+            />
+<!--   android:drawableTop="@drawable/toolbar_cut" -->
+        <RadioButton
+    
+           android:text="剪切"
+ 
+ 		android:drawableTop="@drawable/toolbar_cut"
+          
+                  style="@style/dxmrgj"
+                       android:id="@+id/dxmrgj_cut" 
+       />
+
+        <RadioButton
+    
+                     style="@style/dxmrgj"
+            android:text="删除"
+            android:drawableTop="@drawable/toolbar_delete"
+            android:id="@+id/dxgjl_delete" 
+            
+             />
+
+        <RadioButton
+  
+            
+                     style="@style/dxmrgj"
+            android:text="更名"
+            android:drawableTop="@drawable/toolbar_rename"
+            android:id="@+id/dxgjl_rename" 
+            
+            
+            
+             />
+
+        <RadioButton
+   
+                     style="@style/dxmrgj"
+            android:text="更多"
+            android:drawableTop="@drawable/toolbar_more"
+            android:id="@+id/dxgjl_more" 
+            
+            />
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>

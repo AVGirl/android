@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+    <LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+                           
+      <TextView  
+          android:textColor="@color/red"
+android:layout_marginLeft="6dp"
+            android:layout_gravity="left"
+           android:gravity="left|center"
+    android:layout_width="wrap_content"
+    android:text="0/0"
+    android:textSize="25sp"
+    android:id="@+id/main_toolbar_multiple_TextView"
+    android:layout_height="50dp"
+/>          
+        
+    <RadioGroup
+
+       android:gravity="right"
+        android:orientation="horizontal"
+        android:id="@+id/main_toolbar_multiple_RadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" >
+ 		<View android:layout_height="1dp" android:layout_width="30dp"/>
+        <RadioButton 
+          
+            android:id="@+id/main_toolbar_multiple_all"
+            style="@style/main_toolbar_multiple"
+            android:drawableTop="@drawable/toolbar_multiple_all"
+            android:text="全选" />
+    
+        <RadioButton
+            android:id="@+id/main_toolbar_multiple_null"
+            style="@style/main_toolbar_multiple"
+            android:drawableTop="@drawable/toolbar_multiple_null"
+            android:text="反选" />
+			<View android:layout_height="1dp" android:layout_width="20dp"/>
+        <RadioButton
+            android:id="@+id/main_toolbar_multiple_back"
+            style="@style/main_toolbar_multiple"
+            android:drawableTop="@drawable/toolbar_multiple_back"
+            android:text="返回" />
+
+        
+    </RadioGroup>
+    
+  </LinearLayout>
+       
+</LinearLayout>

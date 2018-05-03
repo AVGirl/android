@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="视图"
+        android:textSize="20sp" />
+
+    <GridView
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:id="@+id/toolbar_sortby_GridLayoutA"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:numColumns="3" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1px"
+            android:layout_gravity="center"
+            android:layout_weight="4"
+            android:background="#8b8b8b" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:text="排序"
+            android:textColor="#8b8b8b"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1px"
+            android:layout_gravity="center"
+            android:layout_weight="4"
+            android:background="#8b8b8b" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="名称"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="类型"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="大小"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="修改日期 "
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <GridView
+        
+                android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:id="@+id/toolbar_sortby_GridLayoutB"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:numColumns="4" />
+
+</LinearLayout>

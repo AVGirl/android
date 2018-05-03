@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+ 
+
+    <TextView
+        android:layout_marginLeft="3dp"
+        android:id="@+id/files_explorer_layout_dispPath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="/"
+        android:textSize="15sp" />
+
+    <FrameLayout
+        android:id="@+id/files_explorer_layout_displayArea"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+         android:layout_weight="1"
+        >
+        
+<!--  //android:divider="#00000000"  android:dividerHeight="5dp"
+     -->      
+<ListView 
+    android:dividerHeight="7dp"
+android:divider="#00000000"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/files_explorer_ListView"
+/> 
+
+  <GridView 
+    android:visibility="gone"
+    android:numColumns="5"
+    android:horizontalSpacing="7dp"
+    android:verticalSpacing="7dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/files_explorer_GridView"
+/>    
+            
+        
+    </FrameLayout>
+    
+   <!-- android:visibility="gone" android:layout_weight="1" -->
+
+   
+</LinearLayout>

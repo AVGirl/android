@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_margin="20dp"
+    android:background="@drawable/layout11"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+<RadioGroup
+ 
+     android:id="@+id/popmenu_layout_RadioGroup" android:layout_width="match_parent" android:layout_height="wrap_content" >
+     
+        <RadioButton
+          android:id="@+id/popmenu_layout_paste"
+          style="@style/popmenu_layout"
+          android:drawableLeft="@drawable/toolbar_paste"
+          android:text="粘贴" />
+    <RadioButton
+          android:id="@+id/popmenu_layout_new"
+          style="@style/popmenu_layout"
+          android:drawableLeft="@drawable/toolbar_new"
+          android:text="新建" />
+    
+    
+    
+     
+       <RadioButton 
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_refresh"
+    android:id="@+id/popmenu_layout_refresh" 
+    android:text="刷新"
+    /> 
+        
+
+        <RadioButton 
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_tool"
+    android:id="@+id/popmenu_layout_tools" 
+    android:text="操作"
+    /> 
+    
+        <RadioButton 
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_checkall"
+    android:id="@+id/popmenu_layout_selectAll" 
+    android:text="全选"
+    /> 
+        
+        
+      <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_setting_setting" 
+    android:text="设置"
+    /> 
+         
+      <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_addToHomePage" 
+    android:text="添加到主页"
+    />      
+      <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_gohome" 
+    android:text="主页"
+    /> 
+      <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_linux" 
+    android:text="进入linux"
+    /> 
+     
+        <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_exit" 
+    android:text="退出"
+    /> 
+          <RadioButton 
+
+    style="@style/popmenu_layout"
+    android:drawableLeft="@drawable/toolbar_setting"
+    android:id="@+id/popmenu_layout_clearCache" 
+    android:text="清除缓存"
+    /> 
+     
+      
+ </RadioGroup>
+
+</LinearLayout>
