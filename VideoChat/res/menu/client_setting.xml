@@ -1,0 +1,72 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.videochat.MainActivity" >
+   <item
+        android:id="@id/actClient_btn_connect"
+        android:orderInCategory="100"
+        android:title="连接服务"
+        app:showAsAction="never"/>
+  
+    
+       <item
+        android:id="@id/actClient_btn_startPreview"
+        android:orderInCategory="100"
+        android:title="启动相机"
+        app:showAsAction="never"/>
+    
+       
+              <item
+        android:id="@+id/menuClient_openBackCamera"
+        android:orderInCategory="100"
+        android:title="切换后置摄像头"
+        app:showAsAction="never"/>
+              
+                     <item
+        android:id="@+id/menuClient_openFrontCamera"
+        android:orderInCategory="100"
+        android:title="切换前置摄像头"
+        app:showAsAction="never"/>
+   
+    
+ 
+    
+      <item
+        android:id="@+id/menuClient_serverReboot"
+        android:orderInCategory="100"
+        android:title="重启服务端"
+        app:showAsAction="never"/>
+        
+    
+       
+        <item
+        android:id="@+id/menuClient_shutdownServer"
+        android:orderInCategory="100"
+        android:title="结束服务端"
+        app:showAsAction="never"/>
+        
+               
+        <item
+        android:id="@+id/menuClient_sendPowerShutdown"
+        android:orderInCategory="100"
+        android:title="发送关机指令"
+        app:showAsAction="never"/>
+        
+        
+    
+           <item
+        android:id="@+id/menuClient_setting"
+        android:orderInCategory="100"
+        android:title="设置"
+        app:showAsAction="never"/>
+           
+        <item
+        android:id="@+id/menuClient_close"
+        android:orderInCategory="100"
+        android:title="关闭"
+        app:showAsAction="never"/>
+        
+        
+    
+
+</menu>
