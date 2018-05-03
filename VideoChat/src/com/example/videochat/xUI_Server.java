@@ -14,10 +14,12 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -44,9 +46,8 @@ import android.widget.LinearLayout;
 import mylib.DHK;
 import mylib.FF;
 import mylib.MySocket;
-import mylib.OnRecvSendHead;
 import mylib.SendHead;
-import mylib.SuUtil;
+import mylib.su;
 import mylib.cmdcs;
 import mylib.command;
 
@@ -70,6 +71,10 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	DHK dhk;
 	XJCS xjcs=new XJCS();
 	ClassOnPreviewFrame classOnPreviewFrame=new ClassOnPreviewFrame();
+	CloseScreen closeScreen; 
+	LinearLayout ll_main;
+	
+	byte ifrontCamera=0;
 	
 	
 	Camera xj=null;
@@ -77,87 +82,30 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	FF ff;
 	ImageView img_xjPreview;
 	//SurfaceView
+	private boolean bool_lockUI_inputDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.act_server);
-		ff=new FF(this);ff.setActivity(this);
+		ff=new FF(this,this);
 		dhk=new DHK(this);
+		closeScreen=new CloseScreen(this,this);
 		bindView();
 		surface.getHolder().addCallback(surfaceCallback);
-		img_xjPreview_rotate_back();
 		ssoc.toNetMsg=false;
 	
-		ActManager.getActManager().pushActivity(this);
-		xj=Camera.open(0);
-		
-/*
-		Parameters parameters = xj.getParameters();
-			List<Camera.Size> lt;
-			 lt = parameters.getSupportedPreviewSizes();
-			for (Camera.Size size : lt) 
-			{
-				ff.sc( size.width+"x"+size.height+";");
-			}
-		*/
-		
-		
-	
-		 han=new ServerHandler();
-			
-			
-	/*	java.util.Date d = new java.util.Date();
-		setTitle("" + System.currentTimeMillis());
-*/
+		han=new ServerHandler();
 		actServer_btn_startServer();
+		//getActionBar().hide();
 		
 		
-	//	FF.sc(getDisplayOrientation(this,1));
-		
-		// actServer_btn_enterClient();
-		//startPreview();
 	}
 	
 	
 	
 	//Camera camera;// 声明Camera类的对象camera
 
-	private int getDisplayOrientation(Activity activity, int cameraId) { // 调整摄像头方向
-			Camera.CameraInfo info = new Camera.CameraInfo();
-			Camera.getCameraInfo(cameraId, info);
-			int rotation = activity.getWindowManager().getDefaultDisplay()
-					.getRotation();
-			int degrees = 0;
-			
-			switch (rotation) {
-			case Surface.ROTATION_0:
-				degrees = 0;
-				break;
-			case Surface.ROTATION_90:
-				degrees = 90;
-				break;
-			case Surface.ROTATION_180:
-				degrees = 180;
-				break;
-			case Surface.ROTATION_270:
-				degrees = 270;
-				break;
-			}
-			
-			int result;
-			
-			if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-				result = (info.orientation + degrees) % 360;
-				result = (360 - result) % 360; // compensate the mirror
-			} else {
-				result = (info.orientation - degrees + 360) % 360;
-			}
-			//FF.sc("result");
-			return result;
-			//camera.setDisplayOrientation(result);
-		}
-	
 	
 	
 	
@@ -181,7 +129,6 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	void stopCamera()
 	{
 		if(xj==null)return;
-		
 		xj.stopPreview();
 		xj.setPreviewCallback(null);
 		xj.release();
@@ -200,37 +147,55 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	void bindView()
 	{
 		surface=(SurfaceView) findViewById(R.id.surfaceView1);
-		img_xjPreview=(ImageView) findViewById(R.id.imageView1);
+		img_xjPreview=(ImageView) findViewById(R.id.actServer_img_imageView1);
+		ll_main= (LinearLayout) findViewById(R.id.actServer_ll_main);
 		//ff.sc("xj.getParameters().getPreviewSize().height=="+xj.getParameters().getPreviewSize().height);
 		surface.setFitsSystemWindows(true);
 		//ff.sc("xj.getParameters().getPreviewSize().height=="+xj.getParameters().getPreviewSize().height);
-		
 	} 
-	
-	void img_xjPreview_rotate_front()
+/*	@Override
+	protected void onPause() 
 	{
 	
-	}
-	
-	void img_xjPreview_rotate_back()
-	{
-		if (1 > 0){return;};
-		 
-		 DisplayMetrics dm = getResources().getDisplayMetrics();
-		int  width = dm.widthPixels;
-		 int height = dm.heightPixels;
+		super.onPause();
+	}*/
 
-		 LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) img_xjPreview.getLayoutParams();
-		params.height=width;//设置当前控件布局的高度
-		params.width=width;//设置当前控件布局的高度
-		img_xjPreview.clearAnimation();
-		img_xjPreview.refreshDrawableState();
-		 Animation animation = AnimationUtils.loadAnimation(this, R.animator.img_preview_rotate_back1111);  
-		 img_xjPreview.startAnimation(animation);
+	void unlockUI()
+	{
+		bool_lockUI_inputDialog=false;
+		ll_main.setVisibility(View.VISIBLE);
+		this.getActionBar().show();
+		
 		
 	}
 	
-	
+
+
+	void lockUI()
+	{
+		bool_lockUI_inputDialog=true;
+		ll_main.setVisibility(View.GONE);
+		this.getActionBar().hide();
+		
+		
+		AlertDialog.Builder aa=new AlertDialog.Builder(this);
+		aa.setOnDismissListener(new OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				
+				if(bool_lockUI_inputDialog)
+				{
+					ff.sc("--if(bool_lockUI_inputDialog)-----su.shutdown();");	
+					su.shutdown();//todo
+				}
+			}
+		});
+		aa.setTitle("信息:");
+		aa.setMessage("点击关闭");
+		aa.setPositiveButton("确定", null);
+		aa.show();
+		
+	}
 	
 	
 	SurfaceHolder.Callback surfaceCallback=new SurfaceHolder.Callback()
@@ -292,15 +257,17 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	class ServerHandler extends Handler
 	{
 
+	
 		public static final int msgStartPreview=300;
 		public static final int msgML_EXITPROCESS=301;
 		public static final int msgML_SERVER_REBOOT=302;
 		
 		public static final int msgSetTitle=303;
+		public static final int msgCloseScreen = 304;
+		public static final int msgLockUI = 305;
+	
 		
-		
-		
-		  void domsgML_SERVER_REBOOT()
+/*		  void domsgML_SERVER_REBOOT()
 		  {
 			//  ff.sc("getPackageName()"+xUI_Server.this.getPackageName());
 			ff.sc("void domsgML_SERVER_REBOOT()");  
@@ -308,23 +275,20 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 			manager.restartPackage(xUI_Server.this.getPackageName());
 		  
 		  }
-		
-		
-		void domsgML_EXITPROCESS()
-			  {
-				  		ff.sc("getPackageName()"+getPackageName());
-						  SuUtil.kill_process(getPackageName());
-			  }
-			  
+		*/
+	
 		
 		@Override
 		public void handleMessage(Message msg) 
 		{
 			switch (msg.what) {
 			case msgStartPreview:startPreview();break;
-			case msgML_EXITPROCESS:domsgML_EXITPROCESS();break;
-			case msgML_SERVER_REBOOT:domsgML_SERVER_REBOOT();break;
+			case msgML_EXITPROCESS: su.kill_process(getPackageName());break;
+			//case msgML_SERVER_REBOOT: su.kill_process(getPackageName());break;
 			case msgSetTitle:ff.setTitle((String)msg.obj);;break;
+			case msgCloseScreen:closeScreen.closeScreen();break;
+			case msgLockUI:lockUI();break;
+			
 			
 			
 			}
@@ -341,7 +305,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	void startPreview()
 	{
 		
-		ff.sc("	void startPreview()");
+/*		ff.sc("	void startPreview()");
 		
 	if(	xjcs.iPreviewWidth==0)xjcs.iPreviewWidth=xj.getParameters().getPreviewSize().width;
 	if(	xjcs.iPreviewHeight==0)	xjcs.iPreviewHeight=xj.getParameters().getPreviewSize().height;
@@ -363,43 +327,47 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 			e.printStackTrace();
 		}
 		xj.setPreviewCallback(classOnPreviewFrame);
-		classOnPreviewFrame.previewSizeChange(xjcs.iPreviewWidth, xjcs.iPreviewHeight);
+		classOnPreviewFrame.startPreviewe(xjcs.iPreviewWidth, xjcs.iPreviewHeight);
 		
 		xj.startPreview();
 	
-		b_xj_startPreview=true;
+		b_xj_startPreview=true;*/
 	}
 	
 
 
-	class SrvRecvCmd implements OnRecvSendHead
+	class SrvRecvCmd implements mylib.MySocket.OnRecvSendHead
 	{
 		boolean doML_VIDEOMONITORING_getSupportedPreviewSizes()
 		{
 			//ff.sc("doML_VIDEOMONITORING_getSupportedPreviewSizes");
 			SendHead sh=new SendHead();
 			
-			
 			String back=new String();
+			 
+			if(xj==null) 
+			{
+				ff.scMsg("if(xj==null)------doML_VIDEOMONITORING_getSupportedPreviewSizes");
+				ssoc.senderr();
+				return true;
+			}
 
-			Parameters parameters = xj.getParameters();
+			Parameters parameters = xj.getParameters();  
 				List<Camera.Size> lt;
-				 lt = parameters.getSupportedPreviewSizes();
+				 lt = parameters.getSupportedPreviewSizes(); 
+				 
+				 
 				for (Camera.Size size : lt) 
 				{
 					back+= size.width+"x"+size.height+";";
+					
 				}
 				
 				byte[] backdata=back.getBytes();
 				sh.cmd=command.ML_VIDEOMONITORING_getSupportedPreviewSizes;
 				sh.size=backdata.length;
-			//	ff.sc("准备返回数据");
 				ssoc.send(sh);
-				//ff.sc("已返回数据");
-				//ff.sc("sh.size==="+sh.size);
 				ssoc.send(backdata,sh.size);
-				//ff.sc("已返回数据---backdata");
-				
 			return true;
 		}
 
@@ -434,47 +402,45 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		void doML_VIDEOMONITORING_SETPREVIEWSIZE(SendHead sh) 
 		{
 			
-			if(b_xj_startPreview==true)
+/*			if(b_xj_startPreview==true)
 			{
+				xj.stopPreview();
 				ff.scMsg("if(b_xj_startPreview==true)");
-				return;
-			}
+				//return;
+			}*/
 			
 			
-			if( xj==null)
+		/*	if( xj==null)
 			{
 				ff.scErr("if( xj==null) 00011");
-			}
-			Parameters parameters = xj.getParameters() ; 
+				return;
+			}*/
+	/*		Parameters parameters = xj.getParameters() ; 
 			parameters.setPreviewSize(sh.csA, sh.csB);
-
+*/
+			//ff.sc("new size===", sh.csA, sh.csB);
 			
-			if(sh.csA<1)
+			if(sh.csA<1 || sh.csB<1)
 			{
-				ff.scErr("if(sh.csA<1)");
+				ff.scErr("	if(sh.csA<1 || sh.csB　<1)");
 				ff.sc("parameters.setPreviewSize",sh.csA, sh.csB);
 				return;
 			}
 			
-			xjcs.iPreviewHeight=sh.csA;
+			classOnPreviewFrame.startPreviewe(sh.csA, sh.csB,ifrontCamera);
+/*			xjcs.iPreviewWidth=sh.csA;
 			xjcs.iPreviewHeight=sh.csB;
-			
-	/*		Parameters p=xj.getParameters();
-			p.setRotation(180);
-			xj.setParameters(p);*/
-			
-			
-			
+			 
 			try {
 				xj.setParameters(parameters);
 				xj.stopPreview();
-				classOnPreviewFrame.previewSizeChange(xjcs.iPreviewWidth, xjcs.iPreviewHeight);
+				
 				xj.startPreview();
 				
 			} catch (Exception e) {
 				ff.scErr("xj.setParameters(parameters);");
 				e.printStackTrace();
-			}
+			}*/
 		}
 		
 	
@@ -482,16 +448,28 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	
 		void doML_VIDEOMONITORING_OPEN_CAMERA(boolean frontCamera)
 		{
+			
+			ifrontCamera=frontCamera?1:0;
+			
 			ff.sc("doML_VIDEOMONITORING_OPEN_CAMERA");
-		
-			stopCamera();
-			xj=Camera.open(frontCamera?1:0);
-			han.sendEmptyMessage(han.msgStartPreview);
+			
+			boolean screen_isBright=tools.screen_isBright(xUI_Server.this);
+			if(screen_isBright==false)tools.screen_wakeUp(xUI_Server.this);
+			
+			classOnPreviewFrame.startPreviewe(0, 0, ifrontCamera);
+			
+			if(screen_isBright==false)han.sendEmptyMessageDelayed(han.msgCloseScreen,1000);
 			
 		}
 		
 		
-
+void doML_VIDEOMONITORING_RESTART_SERVER()
+{
+	stopCamera();
+	closeServer();
+	actServer_btn_startServer()	;
+	
+}
 		@Override
 		public boolean onRecvSendHead(SendHead sh, byte[] data) 
 		{
@@ -502,7 +480,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 			
 			case command.ML_SERVER_REBOOT:han.sendEmptyMessage(han.msgML_SERVER_REBOOT);break;
 			case command.ML_VIDEOMONITORING_getSupportedPreviewSizes:return doML_VIDEOMONITORING_getSupportedPreviewSizes();
-			case command.ML_EXITPROCESS:SuUtil.kill_process(getPackageName());;break;
+			case command.ML_EXITPROCESS:su.kill_process(getPackageName());;break;
 			
 			case command.ML_VIDEOMONITORING_GETWH:doML_VIDEOMONITORING_GETWH();break;
 			case command.ML_VIDEOMONITORING_STOP:doML_VIDEOMONITORING_STOP();break;
@@ -510,14 +488,19 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 			case command.ML_VIDEOMONITORING_REFRESH_RATE:xjcs.refreshRate=sh.csA;break;
 			case command.ML_VIDEOMONITORING_IMAGE_QUALITY:xjcs.imageQuality=sh.csA;break;	
 			case command.ML_VIDEOMONITORING_SETWH:doML_VIDEOMONITORING_SETWH(sh);break;
-
-			case command.ML_CLIENT_SOCKET_STOP:	ssoc.sendCmd(command.ML_CLIENT_SOCKET_STOP);break;
 		
 			case command.ML_VIDEOMONITORING_SETPREVIEWSIZE:doML_VIDEOMONITORING_SETPREVIEWSIZE(sh);break;
 			case command.ML_VIDEOMONITORING_OPEN_BACK_CAMERA:doML_VIDEOMONITORING_OPEN_CAMERA(false);break;
 			case command.ML_VIDEOMONITORING_OPEN_FRONT_CAMERA:doML_VIDEOMONITORING_OPEN_CAMERA(true);break;
-			case command.ML_POWER_Shutdown:SuUtil.shutdown();break;
+			case command.ML_POWER_Shutdown:su.shutdown();break;
 		
+			case command.ML_VIDEOMONITORING_RESTART_SERVER:doML_VIDEOMONITORING_RESTART_SERVER();break;
+			case command.ML_CLOSEDISPLAY:han.sendEmptyMessage(han.msgCloseScreen);break;
+			
+			
+			case command.ML_VIDEOMONITORING_SERVER_LOCK_UI:han.sendEmptyMessage(han.msgLockUI);break;
+			case command.ML_VIDEOMONITORING_SERVER_UNLOCK_UI:bool_lockUI_inputDialog=false;break;
+			
 			
 			case command.ML_VIDEOMONITORING_START_PREVIEW:{
 				han.sendEmptyMessage(ServerHandler.msgStartPreview);
@@ -537,9 +520,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-	
-		
+		getMenuInflater().inflate(R.menu.server, menu);
 		
 		return true;
 	}
@@ -547,10 +528,11 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+		switch (id) {
+		case R.id.menuServer_ActivateScreenLock:closeScreen.closeScreen(); break;
 		}
-		return super.onOptionsItemSelected(item);
+		
+		return true;
 	}
 
 class ClassOnPreviewFrame implements  PreviewCallback
@@ -559,13 +541,10 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	ByteArrayOutputStream byteArrOut=new ByteArrayOutputStream(1024*1024*2);//2MB
 	long execuTime=0;
 	SendHead sh5=new SendHead();
-
-	
 	/*前置摄像头宽高不能用于后置摄像头*/
-	//YuvImage img=new YuvImage(data, ImageFormat.NV21,xjcs.iPreviewWidth ,xjcs.iPreviewHeight, null); 
-	YuvImage YuvImg;//=new YuvImage(data, ImageFormat.NV21,640 ,480, null); 
+	YuvImage YuvImg;
 	byte[]comByte;
-	Rect img_rect;//=new Rect(0,0, 640,480);
+	Rect img_rect;
 	int  preview_w=0;
 	int  preview_h=0;
 	
@@ -577,31 +556,34 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	
 		
 	}
-/*	
-	void checkPreviewSize(int width,int height)
-	{
-		Parameters parameters = xj.getParameters();
-		List<Camera.Size> lt;
-		 lt = parameters.getSupportedPreviewSizes();
-		for (Camera.Size sz : lt) 
-		{
-			if(sz.width==width && sz.height==height)return true;
-		}
-		
-		
-		previewSizeChange(xj.getParameters().getPreviewSize().width,xj.getParameters().getPreviewSize().height);
-		
-	}*/
-
 	
-	public void  previewSizeChange(int width,int height)
+	
+	//PreviewSizeChange
+	/**
+	 * 0 后 1前
+	 * @param width
+	 * @param height
+	 * @param frontCamera
+	 */
+	
+	public void  startPreviewe(int width,int height,int frontCamera)
 	{
+		if(xj!=null)stopCamera();
+	
+		ff.sc("previewSizeChange:",width,height);
+		
+		xj=Camera.open(frontCamera);
+		
 		boolean b=false;
 		Parameters parameters = xj.getParameters();
 		List<Camera.Size> lt;
 		 lt = parameters.getSupportedPreviewSizes();
-		for (Camera.Size sz : lt)if(sz.width==width && sz.height==height){b=true;break;} 
-
+		 
+		for (Camera.Size sz : lt)
+		{
+			if(sz.width==width && sz.height==height){b=true;break;}
+		} 
+		
 		if(b==false)
 		{
 			ff.scErr("previewSizeChange(int width,int height)无效参数：",width,height);
@@ -609,12 +591,26 @@ class ClassOnPreviewFrame implements  PreviewCallback
 			height=xj.getParameters().getPreviewSize().height;
 		}
 		
-		//img_rect=new Rect(0,0, 640,480);
 		img_rect=new Rect(0,0, width,height);
 		  preview_w=width;
 		  preview_h=height;
 		
+		parameters.setPreviewSize(width, height);
+		xj.setParameters(parameters);
+		xj.setDisplayOrientation(90); 
 		
+		try {
+			xj.setPreviewDisplay(surface.getHolder());
+		} catch (IOException e) {
+			e.printStackTrace();ff.scErr("xj.setPreviewDisplay");
+		}
+		
+			xj.setPreviewCallback(this);
+			xj.startPreview();
+		  
+/*		  xj.startPreview();
+		  b_xj_startPreview=true;
+		  ff.sc("end ************");*/
 	}
 	
 	
@@ -686,9 +682,7 @@ class ClassOnPreviewFrame implements  PreviewCallback
 				try {
 					
 					 Socket clientSocket=null;
-					 Message msg=new Message();
-						msg.what=han.msgSetTitle;
-						msg.obj=new String("已启动服务");
+				
 					
 					while((clientSocket=serverSocket.accept()) != null)
 					{
@@ -696,12 +690,15 @@ class ClassOnPreviewFrame implements  PreviewCallback
 						ssoc.initSocket(clientSocket);
 						ssoc.setOnRecvSendHead(srvRecvCmd);
 						ssoc.startRecvSendHead_buffer(srvRecvCmd_buffer);
+						 Message msg=new Message();
+							msg.what=han.msgSetTitle;
+							msg.obj=new String("已启动服务");
 						han.sendMessage(msg);
 						clientSocket=null;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					ff.sc("err454515");
+					ff.scErr("IOException,actServer_btn_startServer");
 					return;
 				}
 				
@@ -733,7 +730,6 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	{
 		stopCamera();
 		closeServer();
-		ff.toast("已停止");
 		ff.setTitle("已停止服务");
 		
 	}
@@ -742,7 +738,6 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	{
 		stopCamera();
 		closeServer();
-		actServer_btn_stopServer();
 		ff.toast("等待连接");
 		ff.setTitle("等待连接");
 		actServer_btn_startServer()	;

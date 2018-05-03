@@ -18,12 +18,14 @@
             android:layout_weight="5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+   
             android:text="设置刷新率"
             android:textSize="16sp" />
 
         <EditText
           android:inputType="number"
               android:layout_weight="5"
+                       android:hint="毫秒"
             android:id="@+id/actClientXJCS_edit_refreshRate"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />
@@ -40,6 +42,7 @@
 
         <TextView
             android:layout_weight="5"
+            
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="设置图像质量"
@@ -47,6 +50,7 @@
 
         <EditText
             android:inputType="number"
+            android:hint="1-100"
               android:layout_weight="5"
             android:id="@+id/actClientXJCS_edit_ImageQualit"
             android:layout_width="0dp"
@@ -61,7 +65,7 @@
         android:orientation="horizontal" >
 
             <Button 
-                       android:layout_weight="5"
+    android:layout_weight="5"
         android:id="@+id/actClientXJCS_btn_setPreviewSize"
         android:onClick="onClick"
 android:layout_width="0dp"

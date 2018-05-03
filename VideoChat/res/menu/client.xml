@@ -3,41 +3,59 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.videochat.MainActivity" >
    <item
-        android:id="@id/actClient_btn_connect"
+        android:id="@+id/menuClient_ConnectServer"
         android:orderInCategory="100"
         android:title="连接服务"
         app:showAsAction="never"/>
+    
+              <item
+        android:id="@+id/menuClient_disconnect"
+        android:orderInCategory="100"
+        android:title="断开连接"
+        app:showAsAction="never"/>
+    
   
     
-       <item
+   <!--     <item
         android:id="@id/actClient_btn_startPreview"
         android:orderInCategory="100"
         android:title="启动相机"
         app:showAsAction="never"/>
-    
-       
+     -->
               <item
         android:id="@+id/menuClient_openBackCamera"
         android:orderInCategory="100"
-        android:title="切换后置摄像头"
+        android:title="摄像头->后置"
         app:showAsAction="never"/>
               
                      <item
         android:id="@+id/menuClient_openFrontCamera"
         android:orderInCategory="100"
-        android:title="切换前置摄像头"
+        android:title="摄像头->前置"
         app:showAsAction="never"/>
    
     
- 
+                      
+      <item
+        android:id="@+id/menuClient_videoSize_raw"
+        android:orderInCategory="100"
+        android:title="视频尺寸->原始"
+        app:showAsAction="never"/>
+      
+            <item
+        android:id="@+id/menuClient_videoSize_fullScreen"
+        android:orderInCategory="100"
+        android:title="视频尺寸->全屏"
+        app:showAsAction="never"/>
+ <!-- 
     
       <item
         android:id="@+id/menuClient_serverReboot"
         android:orderInCategory="100"
         android:title="重启服务端"
-        app:showAsAction="never"/>
+        app:showAsAction="never"/> -->
         
-    
+       
        
         <item
         android:id="@+id/menuClient_shutdownServer"
@@ -51,6 +69,26 @@
         android:orderInCategory="100"
         android:title="发送关机指令"
         app:showAsAction="never"/>
+               <item
+        android:id="@+id/menuClient_ML_CLOSEDISPLAY"
+        android:orderInCategory="100"
+        android:title="服务->关闭显示器"
+        app:showAsAction="never"/>
+                  
+               <item
+        android:id="@+id/menuClient_ML_VIDEOMONITORING_SERVER_LOCK_UI"
+        android:orderInCategory="100"
+        android:title="服务->锁定"
+        app:showAsAction="never"/>
+               
+               
+                             <item
+        android:id="@+id/menuClient_ML_VIDEOMONITORING_SERVER_UNLOCK_UI"
+        android:orderInCategory="100"
+        android:title="服务->解锁"
+        app:showAsAction="never"/>
+              
+               
         
         
     

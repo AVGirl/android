@@ -11,6 +11,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Handler;
 
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -25,11 +28,15 @@ import android.hardware.Camera.PreviewCallback;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.PowerManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
@@ -39,6 +46,7 @@ import mylib.ByteUtil;
 import mylib.FF;
 import mylib.MySocket;
 import mylib.SendHead;
+import mylib.su;
 import mylib.cfg;
 import mylib.jjFile;
 
@@ -49,20 +57,23 @@ FF ff;
 	{
 		
 	} 
-	ActManager actmanger;
-	
+
+
+
+
+
+
+
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		cfg.init(this);
-		ff=new FF(this);
+		ff=new FF(this); 
 		bindView();
-		 //actmanger=ActManager.getActManager();
-		// actmanger.pushActivity(this);
-		
-		ff.toast("hello world");
-			 
+
 		if(1==1)
 		{
 			main_btn_enterServer();
@@ -70,9 +81,9 @@ FF ff;
 		else
 		{
 			main_btn_enterClient();	
-		}
+		} 
 		
-		
+		    
 			//
 		//nClick(null);
 	} 
@@ -86,9 +97,6 @@ FF ff;
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
-	
-		
-		
 		return true;
 	}
 

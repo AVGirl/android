@@ -62,19 +62,9 @@
 			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/Mysqlite.java</location>
 		</link>
 		<link>
-			<name>src/mylib/OnRecvSendHead.java</name>
-			<type>1</type>
-			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/OnRecvSendHead.java</location>
-		</link>
-		<link>
 			<name>src/mylib/SendHead.java</name>
 			<type>1</type>
 			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/SendHead.java</location>
-		</link>
-		<link>
-			<name>src/mylib/SuUtil.java</name>
-			<type>1</type>
-			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/SuUtil.java</location>
 		</link>
 		<link>
 			<name>src/mylib/api.java</name>
@@ -105,6 +95,11 @@
 			<name>src/mylib/socketutils.java</name>
 			<type>1</type>
 			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/socketutils.java</location>
+		</link>
+		<link>
+			<name>src/mylib/su.java</name>
+			<type>1</type>
+			<location>E:/MyDocument/JAVA/MyLib/AndroidLib/SuUtil.java</location>
 		</link>
 	</linkedResources>
 </projectDescription>

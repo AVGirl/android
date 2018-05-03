@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -30,42 +31,38 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import data.icfg;
 import mylib.DHK;
 import mylib.FF;
 import mylib.MySocket;
-import mylib.OnRecvSendHead;
 import mylib.SendHead;
 import mylib.cfg;
 import mylib.command;
 
-public class xUI_Client extends ActionBarActivity implements android.view.View.OnClickListener,OnRecvSendHead{
+
+public class xUI_Client extends ActionBarActivity implements android.view.View.OnClickListener,mylib.MySocket.OnRecvSendHead,mylib.MySocket.SocketError{
 
 	ImageView img_preview;
 	FF ff;
 	XJCS xjcs=new XJCS();
-	
-	static final byte rotate_back=1;
-	static final byte rotate_front=2;
-	static final byte rotate_unknow=3;
-	byte bImgPreview_rotateState=rotate_unknow;
-	
-	
-	
 	byte[]ClientBuffer=new byte[1024*1024*5];
 	 MySocket msoc=new MySocket();
 	SendHead gsh=new SendHead();
 	DHK dhk;
 	private ClientHandler chan;
-	Button actClient_btn_connect,actClient_btn_startPreview;
-	
+	Button actClient_btn_connect;
+	LinearLayout ll_control;
 	
 	void bindView()
 	{
 		img_preview=(ImageView) this.findViewById(R.id.actClient_img_preview);
 		actClient_btn_connect=(Button) findViewById(R.id.actClient_btn_connect);
-		actClient_btn_startPreview=(Button) findViewById(R.id.actClient_btn_startPreview);
+		ll_control=(LinearLayout) this.findViewById(R.id.actClient_ll_control);
+
+		
+		ll_control.bringToFront();
 	} 
 	void resetAnimation()
 	{
@@ -76,6 +73,24 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		ll.addView(img_preview);
 	}
 	
+	boolean isConnect()
+	{
+		boolean b=true;
+		if(msoc.socket==null)b=false;
+		if(!b)
+		{
+			ff.sc("未连接");
+			return b;
+		}
+		if(msoc.isIOException==true)b=false;
+		if(!b)
+		{
+			ff.sc("未连接");
+			return b;
+		}
+		return b;
+		
+	}
 	 
 
 
@@ -84,14 +99,14 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		//if (1 > 0){return;};
 		Animation animation = AnimationUtils.loadAnimation(this, R.animator.img_preview_rotate_back);  
 		 img_preview.startAnimation(animation);
-		bImgPreview_rotateState=rotate_back;
 		 DisplayMetrics dm = getResources().getDisplayMetrics();
 	/*	 int  width =cfg.getInt_fromStr(icfg.xjcsPreviewWidth,dm.widthPixels);
 		 int height =cfg.getInt_fromStr(icfg.xjcsPreviewHeight,dm.widthPixels);
 		 */
 		// ff.sc("this.getActionBar().getHeight()=="+this.getActionBar().getHeight());
 		 int  width =dm.widthPixels;
-		 int height =dm.heightPixels;//-this.getActionBar().getHeight()*2;
+		// int height =dm.heightPixels;//-this.getActionBar().getHeight()*2;
+		 int height =dm.heightPixels-(this.getActionBar().getHeight()+tools.getStatusBarHeight(this));
 		 LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) img_preview.getLayoutParams();
 		//ff.sc("params.height=="+params.height+"       params.width=="+params.width);
 		//ff.toast("params.height=="+params.height+"       params.width=="+params.width);
@@ -116,10 +131,9 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		//if (1 > 0){return;};
 		Animation animation = AnimationUtils.loadAnimation(this, R.animator.img_preview_rotate_front);  
 		 img_preview.startAnimation(animation);
-		bImgPreview_rotateState=rotate_front;  
 		 DisplayMetrics dm = getResources().getDisplayMetrics();
 		 int  width =dm.widthPixels;
-		 int height =dm.heightPixels;//-this.getActionBar().getHeight()*2;
+		 int height =dm.heightPixels-(this.getActionBar().getHeight()+tools.getStatusBarHeight(this));
 		 LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) img_preview.getLayoutParams();
 
 		params.height=height;//设置当前控件布局的高度 
@@ -128,7 +142,6 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	//	params.leftMargin=0;
 		params.topMargin=0;
 		  
-		
 		 img_preview.setLayoutParams(params);
 	}
 	
@@ -140,7 +153,7 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.act_client);
-		ff=new FF(this);
+		ff=new FF(this,this);
 		dhk=new DHK(this);
 		chan=new ClientHandler ();
 		bindView();
@@ -148,7 +161,8 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		
 		//img_preview_rotate();
 		
-		do_actClient_btn_connect();
+		connectServer();
+		//do_actClient_btn_connect();
 		//try {Thread.sleep(300);} catch (Exception e) {}
 	//	menuClient_setting();
 		
@@ -161,12 +175,14 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 
 	{
-		getMenuInflater().inflate(R.menu.client_setting, menu);
+		getMenuInflater().inflate(R.menu.client, menu);
 		return true;
 	}
 	
 	void menuClient_setting()
 	{
+		if(!isConnect())return;
+		
 		cfg.putString(icfg.xjcsPreviewSizeData,getPreviewSize());
 		Intent yt=new Intent(this,xUI_ClientXJCS.class);
 		startActivityForResult(yt,123);
@@ -211,6 +227,7 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	
 	void openCamera(boolean front)
 	{
+		
 		gsh.clear();
 		gsh.cmd=command.ML_VIDEOMONITORING_OPEN_BACK_CAMERA;
 		if(front)gsh.cmd=command.ML_VIDEOMONITORING_OPEN_FRONT_CAMERA;
@@ -231,58 +248,82 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		
 	}
 
+	void menuClient_videoSize_raw()
+	{ 
+		img_preview.setScaleType(ScaleType.CENTER);
+		
+	}
 	
+	void menuClient_videoSize_fullScreen()
+	{
+		img_preview.setScaleType(ScaleType.FIT_CENTER);
+	}
+	
+	
+	void menuItemSelected(int id)
+	{
+		switch (id) {
+		case R.id.menuClient_ConnectServer:connectServer();break;		
+		//case R.id.actClient_btn_startPreview:do_actClient_btn_startPreview();break;
+		case R.id.menuClient_openBackCamera:openCamera(false);break;
+		case R.id.menuClient_openFrontCamera:openCamera(true);break;
+		
+		case R.id.menuClient_shutdownServer:msoc.sendCmd(command.ML_EXITPROCESS);break;
+		case R.id.menuClient_sendPowerShutdown:msoc.sendCmd(command.ML_POWER_Shutdown);break;
+		case R.id.menuClient_setting:menuClient_setting();break;
+		//case R.id.menuClient_serverReboot:msoc.sendCmd(command.ML_SERVER_REBOOT); break;
+		case R.id.menuClient_videoSize_raw:menuClient_videoSize_raw(); break;
+		case R.id.menuClient_videoSize_fullScreen:menuClient_videoSize_fullScreen(); break;
+		case R.id.menuClient_disconnect:msoc.sendCmd(command.ML_VIDEOMONITORING_RESTART_SERVER); break;
+		//case R.id.menuClient_serverReboot:msoc.sendCmd(command.ML_VIDEOMONITORING_RESTART_SERVER); break;
+		case R.id.menuClient_ML_CLOSEDISPLAY:msoc.sendCmd(command.ML_CLOSEDISPLAY); break;
+		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_LOCK_UI:msoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_LOCK_UI); break;
+		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_UNLOCK_UI:msoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_UNLOCK_UI); break;
+
+		}
+		
+	}
 	
 	@Override 
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{
-		switch (item.getItemId()) {
-		case R.id.actClient_btn_connect:do_actClient_btn_connect();break;		
-		case R.id.actClient_btn_startPreview:do_actClient_btn_startPreview();break;
-		case R.id.menuClient_openBackCamera:openCamera(false);break;
-		case R.id.menuClient_openFrontCamera:openCamera(true);break;
-		case R.id.menuClient_shutdownServer:msoc.sendCmd(command.ML_EXITPROCESS);break;
-		case R.id.menuClient_sendPowerShutdown:msoc.sendCmd(command.ML_POWER_Shutdown);break;
-		case R.id.menuClient_setting:menuClient_setting();break;
-		case R.id.menuClient_serverReboot:msoc.sendCmd(command.ML_SERVER_REBOOT); break;
-		
-		
-		
-		
-		}
-		
-	
-		
+		menuItemSelected(item.getItemId());
 		return super.onOptionsItemSelected(item);
 	}
 	
-	
-
-	
-	boolean do_actClient_btn_connect()
+	void abc(boolean show)
 	{
-				if(msoc.socket!=null){if(msoc.isIOException==false)return true;}
-			
+		
+	}
+
+	boolean  connectServer()
+	{
+		if(msoc.socket!=null){if(msoc.isIOException==false)return true;}
+		
 		//ff.toast("开始连接...");
 		
 		Socket soc=msoc.connectToServer("192.168.43.1",1234);
 		if(soc==null)
 		{
 			ff.xxk("连接失败");
+			ll_control.setVisibility(View.VISIBLE);
 			return false;
 		}
 		
 		msoc.toNetMsg=false;
 		msoc.initSocket(soc);
 		msoc.setOnRecvSendHead(this);
+		msoc.setSocketError(this);
 		msoc.startRecvSendHead_buffer(ClientBuffer);
 		setCameraParameter();
-		ff.toast("已连接 ");
-		actClient_btn_connect.setVisibility(View.GONE);
-		
+		ff.setTitle("已连接 ");
+	
 		return true;
 		
+		
 	}
+	
+	
 
 /*	@Override
 	public void onBackPressed() 
@@ -290,14 +331,14 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		Intent yt=new Intent(this, xUI_Server.class);
 		startActivity(yt);
 	}*/
-
+/*
 	void do_actClient_btn_startPreview()
 	{
 		gsh.clear();
 		gsh.cmd=command.ML_VIDEOMONITORING_START_PREVIEW;
 		
 		if(msoc.send(gsh))actClient_btn_startPreview.setVisibility(View.GONE);
-	}
+	}*/
 	
 	void actClient_btn_frontCamera()
 	{
@@ -322,32 +363,34 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	@Override
 	public void onClick(View v) {
 		
+		
+		if(v.getId()==R.id.actClient_btn_disconnect)
+		{
+			ff.sc(	 getPreviewSize());
+			
+			return;
+		}
+		
+		
+		
 		//ff.toast("	public void onClick(View v) {");
 		switch (v.getId()) 
 		{ 
+
+		case R.id.actClient_btn_connect:connectServer();	break;
+		case R.id.actClient_btn_test: tools.uninstallApk(this,this.getPackageName());
+		case R.id.actClient_btn_disconnect:menuItemSelected(R.id.menuClient_disconnect);break;
+		case R.id.actClient_btn_backCamera:menuItemSelected(R.id.menuClient_openBackCamera);break;
+		case R.id.actClient_btn_frontCamera:menuItemSelected(R.id.menuClient_openFrontCamera);break;
+		case R.id.actClient_btn_hideControl:ll_control.setVisibility(View.GONE);;break;
 		
-		case R.id.actClient_btn_backCamera:actClient_btn_backCamera();break;
-		case R.id.actClient_btn_frontCamera:actClient_btn_frontCamera();break;
-		
-		
-		case R.id.actClient_btn_connect:
-		{
-			if(do_actClient_btn_connect())actClient_btn_connect.setVisibility(View.GONE);
-			break;
-		}
-		
-		case R.id.actClient_btn_test:{
-			 tools.uninstallApk(this,this.getPackageName());
-		}
-		
-		
-		case R.id.actClient_btn_startPreview:
+	/*	case R.id.actClient_btn_startPreview:
 		{
 			actClient_btn_startPreview.setVisibility(View.GONE);
 			do_actClient_btn_startPreview();
 			break;
 			
-		}
+		}*/
 		
 		
 		}
@@ -361,13 +404,8 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	@Override
 	public boolean onRecvSendHead(SendHead sh, byte[] data) 
 	{
-		  
-	//、、if (1>0){return true;} 
-//ff.sc("onRecvSendHead");   
-		//if(sh.cmd==command.ML_FILE_Picture && sh.csA==cmdcs.ML_CS_FILE_SEND)
 		switch (sh.cmd) {  
 		case command.ML_FILE_Picture:do_ML_FILE_Picture(sh, data);break;
-		case command.ML_CLIENT_SOCKET_STOP:{if (1>0){return false;}  /* return false;*/}break;
 	 
 		
 		default:
@@ -390,18 +428,16 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 			chan.sendMessage(msg);
 			data=null;          
 			//System.gc();
-		
+			
+			
 	}
 	
 	String getPreviewSize()
 	{
-		if(msoc.socket==null)
-		{
-			ff.sc("尚没连接");
-			return "";
-		}
+	
+		if(!isConnect())return "";
 		
-		msoc.xsend_ML_CLIENT_SOCKET_STOP();
+		msoc.recv_pause();
 		
 		SendHead sh=new SendHead();
 		gsh.cmd=command.ML_VIDEOMONITORING_getSupportedPreviewSizes;
@@ -413,7 +449,7 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		  byte[] backData=new byte[sh.size];    
 		  msoc.recv(backData, sh.size);
 		  
-		msoc.continueRecvSendHead_buffer();
+		msoc.recv_continue();
 		return new String(backData);
 		
 	}
@@ -447,9 +483,21 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		public static final int msgSetPreviewSize=300;
 		public static final int msgImgPreviewShowBitmap=301;
 		public static final int msgImg_preview_rotate=302;
+		public static final int msgSetTitle=304;
+		public static final int msgSocketError=305;
+		
+		
+		
 		
 		public static final int msgTest=110;
 		
+		public  void setTitle(String s)
+		{
+			Message msg=new Message();
+			msg.obj=s;
+			msg.what=msgSetTitle;
+			this.sendMessage(msg);
+		}
 		
 		
 		void setPreviewSize(String jg)
@@ -481,17 +529,42 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 			ff.sc(hs[index]);
 			
 		}
+		
+		
+		void doMsgSocketError()
+		{
+			ff.setTitle("doMsgSocketError");
+			new AlertDialog.Builder(xUI_Client.this).setMessage("已断开连接").show();
+
+			
+		/*	int q= dhk.dhk("已断开连接", null, "重新连接", "取消");
+			if(q==dhk.Positive_BTN)
+			{
+				connectServer();
+			}*/
+		/*	img_preview.setVisibility(View.GONE);
+			ll_control.setVisibility(View.VISIBLE);
+			ll_control.bringToFront();
+			ff.setTitle("doMsgSocketError");*/
+			
+		}
+		
 		@Override
 		public void handleMessage(Message msg) 
 		{
 			
 			switch (msg.what) {
 			case msgSetPreviewSize:setPreviewSize((String) msg.obj);break;
+			
+			case msgSocketError:doMsgSocketError();break;
+			case msgSetTitle:ff.setTitle((String) msg.obj);break;
 			case msgImgPreviewShowBitmap:{
 				//ff.sc("w=="+((Bitmap) msg.obj).getWidth(),((Bitmap) msg.obj).getHeight());
 				img_preview.setImageBitmap((Bitmap) msg.obj);
 				break;
 				}
+			
+			
 			//case msgImg_preview_rotate:img_preview_rotate_back();break;
 			//case msgTest:ff.toast("msgTest");break;
 			
@@ -509,6 +582,13 @@ void xjStartPreview()
 	gsh.cmd=command.ML_VIDEOMONITORING_START_PREVIEW;
 	msoc.send(gsh);
 	
+}
+@Override
+public void socketError(short what,Socket s1) 
+{
+	ff.sc("socketError",what);
+	chan.sendEmptyMessage(chan.msgSocketError);
+
 }
 
 	

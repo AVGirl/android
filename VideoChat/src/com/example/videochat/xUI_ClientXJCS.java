@@ -77,8 +77,16 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 		String sizes[]= cfg.getString(icfg.xjcsPreviewSizeData,"").split(";");
 		if(sizes==null){ff.sc("sizes==null");return;}
 		
+		if(sizes.length<2){ff.scErr("if(sizes.length<2)");}
+		
+		
+		
 		String ws[]=new String[sizes.length];
 		String hs[]=new String[sizes.length];
+		
+		
+		
+		
 		
 		//ff.sc("sizes",sizes);
 		for (int i = 0; i < sizes.length; i++) 

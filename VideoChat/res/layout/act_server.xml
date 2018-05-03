@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/actServer_ll_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
    tools:context="com.example.videochat.xUI_Server"
@@ -72,7 +72,7 @@
         android:layout_height="200dp" />
 <!--  android:visibility="gone" -->
     <ImageView 
-        android:id="@+id/imageView1"
+        android:id="@+id/actServer_img_imageView1"
         android:layout_width="1dp"
         android:layout_height="1dp"
         android:background="@drawable/girl"
