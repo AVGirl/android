@@ -51,9 +51,22 @@ android:layout_height="150dp"
         android:id="@+id/main_btn_test"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:visibility="gone"
         android:onClick="onClick"
         android:text="T"
         android:textSize="20sp" />
+    
+    <Button 
+android:layout_width="wrap_content"
+android:text=" ? "
+    android:onClick="onClick"
+android:textSize="16sp"
+android:layout_height="wrap_content"
+ android:id="@+id/main_btn_help"
+
+/>
+    
+    
 <!--     android:src="@drawable/girl" -->
 
 </LinearLayout>

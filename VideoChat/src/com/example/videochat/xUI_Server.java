@@ -43,22 +43,16 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import data.icfg;
 import mylib.DHK;
 import mylib.FF;
 import mylib.MySocket;
 import mylib.SendHead;
+import mylib.cfg;
 import mylib.su;
 import mylib.cmdcs;
 import mylib.command;
 
-class XJCS
-{
-	public static int iPreviewWidth=0;
-	public static int iPreviewHeight=0;
-	public static int  refreshRate = 50;//刷新率  毫秒
-	public static int imageQuality = 60;//图像质量
-	
-}
 
 
 public class xUI_Server extends ActionBarActivity implements android.view.View.OnClickListener{
@@ -73,8 +67,6 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	ClassOnPreviewFrame classOnPreviewFrame=new ClassOnPreviewFrame();
 	CloseScreen closeScreen; 
 	LinearLayout ll_main;
-	
-	byte ifrontCamera=0;
 	
 	
 	Camera xj=null;
@@ -96,7 +88,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		ssoc.toNetMsg=false;
 	
 		han=new ServerHandler();
-		actServer_btn_startServer();
+		actServer_btn_startServer(null);
 		//getActionBar().hide();
 		
 		
@@ -222,7 +214,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		
 	};
 
-	boolean startServer()
+	/*boolean startServer()
 	{
 		 Socket clientSocket;		
 		serverSocket=ssoc.newServerSocket(1234);
@@ -248,7 +240,7 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		return true;
 		
 	}
-	
+	*/
 
 	
 	ServerHandler han;
@@ -258,13 +250,14 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 	{
 
 	
-		public static final int msgStartPreview=300;
+		//public static final int msgStartPreview=300;
 		public static final int msgML_EXITPROCESS=301;
 		public static final int msgML_SERVER_REBOOT=302;
 		
 		public static final int msgSetTitle=303;
 		public static final int msgCloseScreen = 304;
 		public static final int msgLockUI = 305;
+		//、、public static final int msgStopCamera = 306;
 	
 		
 /*		  void domsgML_SERVER_REBOOT()
@@ -276,18 +269,26 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		  
 		  }
 		*/
-	
+		
+		public  void setTitle(String s)
+		{
+			Message msg=new Message();
+			msg.obj=s;
+			msg.what=msgSetTitle;
+			this.sendMessage(msg);
+		}
 		
 		@Override
 		public void handleMessage(Message msg) 
 		{
 			switch (msg.what) {
-			case msgStartPreview:startPreview();break;
+		
 			case msgML_EXITPROCESS: su.kill_process(getPackageName());break;
 			//case msgML_SERVER_REBOOT: su.kill_process(getPackageName());break;
 			case msgSetTitle:ff.setTitle((String)msg.obj);;break;
 			case msgCloseScreen:closeScreen.closeScreen();break;
 			case msgLockUI:lockUI();break;
+		//	case msgStopCamera:stopCamera();break;
 			
 			
 			
@@ -297,56 +298,18 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		
 	}
 	
-	
-
-	
-	
-	
-	void startPreview()
-	{
-		
-/*		ff.sc("	void startPreview()");
-		
-	if(	xjcs.iPreviewWidth==0)xjcs.iPreviewWidth=xj.getParameters().getPreviewSize().width;
-	if(	xjcs.iPreviewHeight==0)	xjcs.iPreviewHeight=xj.getParameters().getPreviewSize().height;
-		 
-		try { 
-			//review.set("orientation", "portrait");
-			//preview.set("rotation",90);
-			
-			Parameters p=xj.getParameters();
-			p.setRotation(90);
-			xj.setParameters(p);
-			
-			
-			xj.setDisplayOrientation(90); 
-		
-			xj.setPreviewDisplay(surface.getHolder());
-		} catch (Exception e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-		xj.setPreviewCallback(classOnPreviewFrame);
-		classOnPreviewFrame.startPreviewe(xjcs.iPreviewWidth, xjcs.iPreviewHeight);
-		
-		xj.startPreview();
-	
-		b_xj_startPreview=true;*/
-	}
-	
 
 
-	class SrvRecvCmd implements mylib.MySocket.OnRecvSendHead
+	class SrvRecvCmd implements mylib.MySocket.OnSocketReceivedData
 	{
 		boolean doML_VIDEOMONITORING_getSupportedPreviewSizes()
 		{
-			//ff.sc("doML_VIDEOMONITORING_getSupportedPreviewSizes");
 			SendHead sh=new SendHead();
-			
 			String back=new String();
-			 
+			
 			if(xj==null) 
 			{
+				ssoc.respond(command.ML_VIDEOMONITORING_GetSupportedPreviewSizes);
 				ff.scMsg("if(xj==null)------doML_VIDEOMONITORING_getSupportedPreviewSizes");
 				ssoc.senderr();
 				return true;
@@ -360,15 +323,14 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 				for (Camera.Size size : lt) 
 				{
 					back+= size.width+"x"+size.height+";";
-					
 				}
-				
 				byte[] backdata=back.getBytes();
-				sh.cmd=command.ML_VIDEOMONITORING_getSupportedPreviewSizes;
+				sh.cmd=command.ML_SOCKET_RESPOND;
+				sh.csA=command.ML_VIDEOMONITORING_GetSupportedPreviewSizes;
 				sh.size=backdata.length;
-				ssoc.send(sh);
-				ssoc.send(backdata,sh.size);
-			return true;
+				ssoc.send(sh,backdata,sh.size);
+				///ssoc.send(backdata,sh.size);
+				return true;
 		}
 
 		
@@ -376,88 +338,31 @@ public class xUI_Server extends ActionBarActivity implements android.view.View.O
 		
 		
 		
-		void doML_VIDEOMONITORING_GETWH()
-		{		
-			SendHead sh=new SendHead();
-			sh.cmd=command.ML_VIDEOMONITORING_GETWH;
-			sh.csA=xjcs.iPreviewWidth;
-			sh.csB=xjcs.iPreviewHeight;
-			ssoc.send(sh);
-		}
-		void doML_VIDEOMONITORING_STOP(){stopCamera();}
 		
 		void doML_VIDEOMONITORING_PAUSE()
 		{}
 		
-
-		void doML_VIDEOMONITORING_SETWH(SendHead sh)
-		{
-			//ff.sc("doML_VIDEOMONITORING_SETWH",sh.csA,sh.csB);
-	/*		Parameters parameters = xj.getParameters();
-			parameters.setPreviewSize(sh.csA, sh.csB);
-			xj.setParameters(parameters);*/
-			doML_VIDEOMONITORING_SETPREVIEWSIZE(sh);
-		}
-		
 		void doML_VIDEOMONITORING_SETPREVIEWSIZE(SendHead sh) 
 		{
-			
-/*			if(b_xj_startPreview==true)
-			{
-				xj.stopPreview();
-				ff.scMsg("if(b_xj_startPreview==true)");
-				//return;
-			}*/
-			
-			
-		/*	if( xj==null)
-			{
-				ff.scErr("if( xj==null) 00011");
-				return;
-			}*/
-	/*		Parameters parameters = xj.getParameters() ; 
-			parameters.setPreviewSize(sh.csA, sh.csB);
-*/
-			//ff.sc("new size===", sh.csA, sh.csB);
-			
+			ff.scMsg("doML_VIDEOMONITORING_SETPREVIEWSIZE");
 			if(sh.csA<1 || sh.csB<1)
 			{
-				ff.scErr("	if(sh.csA<1 || sh.csB　<1)");
 				ff.sc("parameters.setPreviewSize",sh.csA, sh.csB);
 				return;
 			}
 			
-			classOnPreviewFrame.startPreviewe(sh.csA, sh.csB,ifrontCamera);
-/*			xjcs.iPreviewWidth=sh.csA;
-			xjcs.iPreviewHeight=sh.csB;
-			 
-			try {
-				xj.setParameters(parameters);
-				xj.stopPreview();
-				
-				xj.startPreview();
-				
-			} catch (Exception e) {
-				ff.scErr("xj.setParameters(parameters);");
-				e.printStackTrace();
-			}*/
+			xjcs.iPreviewWidth=(short) sh.csA;
+			xjcs.iPreviewHeight=(short) sh.csB;
 		}
 		
 	
 		
 	
-		void doML_VIDEOMONITORING_OPEN_CAMERA(boolean frontCamera)
+		void doML_VIDEOMONITORING_CAMERA_START()
 		{
-			
-			ifrontCamera=frontCamera?1:0;
-			
-			ff.sc("doML_VIDEOMONITORING_OPEN_CAMERA");
-			
 			boolean screen_isBright=tools.screen_isBright(xUI_Server.this);
 			if(screen_isBright==false)tools.screen_wakeUp(xUI_Server.this);
-			
-			classOnPreviewFrame.startPreviewe(0, 0, ifrontCamera);
-			
+			classOnPreviewFrame.startPreviewe();
 			if(screen_isBright==false)han.sendEmptyMessageDelayed(han.msgCloseScreen,1000);
 			
 		}
@@ -467,47 +372,47 @@ void doML_VIDEOMONITORING_RESTART_SERVER()
 {
 	stopCamera();
 	closeServer();
-	actServer_btn_startServer()	;
+	actServer_btn_startServer(null)	;
 	
 }
+
+/*void doML_VIDEOMONITORING_START_PREVIEW()
+{
+	
+	
+}*/
+
+
+/*void doML_VIDEOMONITORING_SET_CAMERAID(int)
+{
+	
+}
+*/
 		@Override
-		public boolean onRecvSendHead(SendHead sh, byte[] data) 
+		public boolean onSocketReceivedData(SendHead sh, byte[] data ,MySocket __ssss) 
 		{
-		//ff.sc("onRecvSendHead",sh.cmd);
-			
 			switch (sh.cmd)
 			{
-			
+			case command.ML_PHONE_GetBatteryLevel:ssoc.respond(sh.cmd,tools.getBatteryLevel(xUI_Server.this),0);break;
 			case command.ML_SERVER_REBOOT:han.sendEmptyMessage(han.msgML_SERVER_REBOOT);break;
-			case command.ML_VIDEOMONITORING_getSupportedPreviewSizes:return doML_VIDEOMONITORING_getSupportedPreviewSizes();
+			case command.ML_VIDEOMONITORING_GetSupportedPreviewSizes:return doML_VIDEOMONITORING_getSupportedPreviewSizes();
 			case command.ML_EXITPROCESS:su.kill_process(getPackageName());;break;
 			
-			case command.ML_VIDEOMONITORING_GETWH:doML_VIDEOMONITORING_GETWH();break;
-			case command.ML_VIDEOMONITORING_STOP:doML_VIDEOMONITORING_STOP();break;
-			case command.ML_VIDEOMONITORING_PAUSE:doML_VIDEOMONITORING_PAUSE();break;
-			case command.ML_VIDEOMONITORING_REFRESH_RATE:xjcs.refreshRate=sh.csA;break;
-			case command.ML_VIDEOMONITORING_IMAGE_QUALITY:xjcs.imageQuality=sh.csA;break;	
-			case command.ML_VIDEOMONITORING_SETWH:doML_VIDEOMONITORING_SETWH(sh);break;
-		
+			case command.ML_VIDEOMONITORING_CAMERA_STOP:stopCamera();ssoc.respond(sh.cmd); break;
+			case command.ML_VIDEOMONITORING_REFRESH_RATE:xjcs.refreshRate=(short) sh.csA;break;
+			case command.ML_VIDEOMONITORING_IMAGE_QUALITY:xjcs.imageQuality=(byte) sh.csA;break;	
 			case command.ML_VIDEOMONITORING_SETPREVIEWSIZE:doML_VIDEOMONITORING_SETPREVIEWSIZE(sh);break;
-			case command.ML_VIDEOMONITORING_OPEN_BACK_CAMERA:doML_VIDEOMONITORING_OPEN_CAMERA(false);break;
-			case command.ML_VIDEOMONITORING_OPEN_FRONT_CAMERA:doML_VIDEOMONITORING_OPEN_CAMERA(true);break;
+			case command.ML_VIDEOMONITORING_SET_CAMERAID:xjcs.cameraID=(byte) sh.csA; break;
+			
 			case command.ML_POWER_Shutdown:su.shutdown();break;
 		
 			case command.ML_VIDEOMONITORING_RESTART_SERVER:doML_VIDEOMONITORING_RESTART_SERVER();break;
 			case command.ML_CLOSEDISPLAY:han.sendEmptyMessage(han.msgCloseScreen);break;
-			
-			
 			case command.ML_VIDEOMONITORING_SERVER_LOCK_UI:han.sendEmptyMessage(han.msgLockUI);break;
 			case command.ML_VIDEOMONITORING_SERVER_UNLOCK_UI:bool_lockUI_inputDialog=false;break;
+			//case command.ML_VIDEOMONITORING_START_PREVIEW:doML_VIDEOMONITORING_START_PREVIEW();break;
 			
-			
-			case command.ML_VIDEOMONITORING_START_PREVIEW:{
-				han.sendEmptyMessage(ServerHandler.msgStartPreview);
-				break;
-				//return false;
-				}//todo
-			
+			case command.ML_VIDEOMONITORING_CAMERA_START:doML_VIDEOMONITORING_CAMERA_START();break;
 			
 			}
 			
@@ -526,14 +431,50 @@ void doML_VIDEOMONITORING_RESTART_SERVER()
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		ClassIP  ip = new ClassIP (this);
+		
+		String ip2=ip.getWifiIP();
+		if(ip2==null)return true;
+		
+		menu.findItem(R.id.menuServer_WIFIIP).setTitle("本机ip："+ip2);
+		menu.findItem(R.id.menuServer_changeWifiIp).setTitle("绑定ip为："+ip2);
+		
+		return true;
+	}
+
+
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		switch (id) {
 		case R.id.menuServer_ActivateScreenLock:closeScreen.closeScreen(); break;
+		
+		case R.id.menuServer_changeWifiIp:menuServer_changeWifiIp(); break;
+		
+		
+		
 		}
 		
 		return true;
 	}
+
+private void menuServer_changeWifiIp() 
+{
+	ClassIP cip = new ClassIP(this);
+	
+	if(serverSocket!=null)
+	{
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	actServer_btn_startServer(cip.getWifiIP());
+	
+}
 
 class ClassOnPreviewFrame implements  PreviewCallback
 {
@@ -545,34 +486,21 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	YuvImage YuvImg;
 	byte[]comByte;
 	Rect img_rect;
-	int  preview_w=0;
-	int  preview_h=0;
-	
 	
 	ClassOnPreviewFrame()
 	{
 		sh5.cmd=command.ML_FILE_Picture;
 		sh5.csA=cmdcs.ML_CS_FILE_SEND;
-	
-		
 	}
 	
+
 	
-	//PreviewSizeChange
-	/**
-	 * 0 后 1前
-	 * @param width
-	 * @param height
-	 * @param frontCamera
-	 */
 	
-	public void  startPreviewe(int width,int height,int frontCamera)
+	public void  startPreviewe()
 	{
 		if(xj!=null)stopCamera();
-	
-		ff.sc("previewSizeChange:",width,height);
 		
-		xj=Camera.open(frontCamera);
+		xj=Camera.open(xjcs.cameraID);
 		
 		boolean b=false;
 		Parameters parameters = xj.getParameters();
@@ -581,21 +509,19 @@ class ClassOnPreviewFrame implements  PreviewCallback
 		 
 		for (Camera.Size sz : lt)
 		{
-			if(sz.width==width && sz.height==height){b=true;break;}
+			if(sz.width==xjcs.iPreviewWidth && sz.height==xjcs.iPreviewHeight){b=true;break;}
 		} 
 		
 		if(b==false)
 		{
-			ff.scErr("previewSizeChange(int width,int height)无效参数：",width,height);
-			width=xj.getParameters().getPreviewSize().width;
-			height=xj.getParameters().getPreviewSize().height;
+			ff.scErr("previewSizeChange(int width,int height)无效参数：",xjcs.iPreviewWidth,xjcs.iPreviewHeight);
+			xjcs.iPreviewWidth=(short) xj.getParameters().getPreviewSize().width;
+			xjcs.iPreviewHeight=(short) xj.getParameters().getPreviewSize().height;
 		}
 		
-		img_rect=new Rect(0,0, width,height);
-		  preview_w=width;
-		  preview_h=height;
+		img_rect=new Rect(0,0, xjcs.iPreviewWidth,xjcs.iPreviewHeight);
+		parameters.setPreviewSize(xjcs.iPreviewWidth, 	xjcs.iPreviewHeight);
 		
-		parameters.setPreviewSize(width, height);
 		xj.setParameters(parameters);
 		xj.setDisplayOrientation(90); 
 		
@@ -607,10 +533,6 @@ class ClassOnPreviewFrame implements  PreviewCallback
 		
 			xj.setPreviewCallback(this);
 			xj.startPreview();
-		  
-/*		  xj.startPreview();
-		  b_xj_startPreview=true;
-		  ff.sc("end ************");*/
 	}
 	
 	
@@ -618,7 +540,7 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) 
 	{
-			if(xjcs.refreshRate!=0)
+			if(xjcs.refreshRate>0)
 			{
 				long l=System.currentTimeMillis();
 				if(l<execuTime+xjcs.refreshRate)
@@ -627,19 +549,20 @@ class ClassOnPreviewFrame implements  PreviewCallback
 				}
 				execuTime=l;
 			}
-
-		 YuvImg=new YuvImage(data, ImageFormat.NV21,preview_w ,preview_h, null); 
+			
+		 YuvImg=new YuvImage(data, ImageFormat.NV21,xjcs.iPreviewWidth ,xjcs.iPreviewHeight, null); 
 		 
 		 byteArrOut.reset();
 			try {
 				YuvImg.compressToJpeg(img_rect, xjcs.imageQuality, byteArrOut);
 			} catch (Exception e) {
-				ff.sc("w=="+xj.getParameters().getPreviewSize().width+"   h=="+xj.getParameters().getPreviewSize().height);
 				FF.scErr("img.compressToJpeg");
 				e.printStackTrace();
-				xj.setPreviewCallback(null);
+				//han.sendEmptyMessageDelayed(han.msgStopCamera, 1000);
+				stopCamera();
+				return;
 			} 
-			 
+			                               
 			comByte=byteArrOut.toByteArray();
 			sh5.size=comByte.length;
 
@@ -648,7 +571,6 @@ class ClassOnPreviewFrame implements  PreviewCallback
 				stopCamera();
 				ff.scErr("onPreviewFrame----stopCamera");
 			}
-			//else ff.sc("发送图片 已发送----onPreviewFrame");
 			comByte=null;
 		
 	}
@@ -667,9 +589,9 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	}*/
 
 	
-	void actServer_btn_startServer()
+	void actServer_btn_startServer(String ip)
 	{
-		serverSocket=ssoc.newServerSocket(1234);
+		serverSocket=ssoc.newServerSocket(1234,ip);
 		if(serverSocket==null)
 		{
 			ff.toast("if(serverSocket==null)");
@@ -682,18 +604,15 @@ class ClassOnPreviewFrame implements  PreviewCallback
 				try {
 					
 					 Socket clientSocket=null;
-				
+					 han.setTitle("等待接入");
 					
 					while((clientSocket=serverSocket.accept()) != null)
 					{
 						ssoc.shutdownSocket();
 						ssoc.initSocket(clientSocket);
 						ssoc.setOnRecvSendHead(srvRecvCmd);
-						ssoc.startRecvSendHead_buffer(srvRecvCmd_buffer);
-						 Message msg=new Message();
-							msg.what=han.msgSetTitle;
-							msg.obj=new String("已启动服务");
-						han.sendMessage(msg);
+						ssoc.startRecv(srvRecvCmd_buffer);
+							 han.setTitle("已启动服务");
 						clientSocket=null;
 					}
 				} catch (IOException e) {
@@ -724,6 +643,8 @@ class ClassOnPreviewFrame implements  PreviewCallback
 		
 	void actServer_btn_test_0000000000000000000000000000000000000()
 	{
+	
+		
 	}
 	
 	void actServer_btn_stopServer()
@@ -740,7 +661,7 @@ class ClassOnPreviewFrame implements  PreviewCallback
 		closeServer();
 		ff.toast("等待连接");
 		ff.setTitle("等待连接");
-		actServer_btn_startServer()	;
+		actServer_btn_startServer(null)	;
 		
 	}
 	@Override
@@ -748,7 +669,7 @@ class ClassOnPreviewFrame implements  PreviewCallback
 	{
 		
 		switch (v.getId()) {
-		case R.id.actServer_btn_startServer:actServer_btn_startServer();break;
+		case R.id.actServer_btn_startServer:actServer_btn_startServer(null);break;
 		case R.id.actServer_btn_enterClient:actServer_btn_enterClient();break;
 		case R.id.actServer_btn_test:actServer_btn_test_0000000000000000000000000000000000000();break;
 		case R.id.actServer_btn_rebootServer:actServer_btn_rebootServer();break;

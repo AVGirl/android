@@ -1,12 +1,26 @@
 package com.example.videochat;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.apache.http.conn.util.InetAddressUtils;
+
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.view.Surface;
 import android.view.Window;
@@ -20,6 +34,14 @@ public class tools
 	    Intent intent = new Intent(Intent.ACTION_DELETE, uri);    
 	    context.startActivity(intent);    
 	}  
+	
+		public static int getBatteryLevel(Context con)
+		{
+			Intent batteryInfoIntent =con.getApplicationContext() .registerReceiver( null ,  new IntentFilter( Intent.ACTION_BATTERY_CHANGED ) ) ;  
+		   return batteryInfoIntent.getIntExtra( "level" , 0 );
+		}
+	
+	
 	
 	public static int getStatusBarHeight(Context context) {
 	       int result = 0;
@@ -38,6 +60,25 @@ public class tools
 		return powerManager.isScreenOn();
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+void temp__0x0x0x0x0x()
+{
+
+		
+}
+
+
+   
 	
 	public static void screen_unlock(Context context)
 	{
@@ -169,4 +210,99 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 
 
+
+class ClassIP {
+
+	public String getLocalIpAddress() {
+		try {
+			String ipv4;
+			ArrayList<NetworkInterface> nilist = Collections.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface ni : nilist) {
+				ArrayList<InetAddress> ialist = Collections.list(ni.getInetAddresses());
+				for (InetAddress address : ialist) {
+					if (!address.isLoopbackAddress()
+							&& InetAddressUtils.isIPv4Address(ipv4 = address.getHostAddress())) {
+						return ipv4;
+					}
+				}
+
+			}
+
+		} catch (SocketException ex) {
+		}
+		return null;
+	}
+
+	public String WifiIP = null;
+	public String mobileIP = null;
+	Context mContext;
+
+	ClassIP(Context con) {
+		mContext = con;
+	}
+
+	public String intToIp(int ipInt) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(ipInt & 0xFF).append(".");
+		sb.append((ipInt >> 8) & 0xFF).append(".");
+		sb.append((ipInt >> 16) & 0xFF).append(".");
+		sb.append((ipInt >> 24) & 0xFF);
+		return sb.toString();
+	}
+
+	/**
+	 * 不可用
+	 * 
+	 * @return
+	 */
+	public String getLocalIp() {
+
+		InetAddress addr;
+		try {
+			addr = InetAddress.getLocalHost();
+			String ip2 = addr.getHostAddress().toString(); // 获取本机ip
+			String hostName = addr.getHostName().toString(); // 获取本机计算机名称
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private void q() {
+		ConnectivityManager conMann = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo mobileNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+		if (mobileNetworkInfo.isConnected()) {
+			mobileIP = getLocalIpAddress();
+		}
+	}
+	
+
+	public String getWifiIP() {
+		Thread td = new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				ConnectivityManager conMann = (ConnectivityManager) mContext
+						.getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo wifiNetworkInfo = conMann.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				if (wifiNetworkInfo.isConnected()) {
+					WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+					int ipAddress = wifiInfo.getIpAddress();
+					WifiIP = intToIp(ipAddress);
+				}
+			}
+		});
+		td.start();
+		try {
+			td.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return WifiIP;
+
+	}
+}
 

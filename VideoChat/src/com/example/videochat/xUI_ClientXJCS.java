@@ -1,5 +1,6 @@
 package com.example.videochat;
 
+import android.R.integer;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -21,7 +22,7 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 	Button btn_ok;
 	DHK dhk;
 	FF ff;
-	
+	XJCS xjcs = new XJCS();
 	
 	
 	void bindView()
@@ -51,12 +52,11 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 
 	void initViewData()
 	{
-		if(edit_ImageQualit==null)ff.sc("if(edit_ImageQualit==null)");
-		edit_ImageQualit.setText(cfg.getString(icfg.xjcsImageQuality,"70"));
-		 edit_RefreshRate.setText(cfg.getString(icfg.xjcsRefreshRate,"50"));
-		 String previewSize="";
-		 previewSize+=cfg.getString(icfg.xjcsPreviewWidth,"")+"x";
-		 previewSize+=cfg.getString(icfg.xjcsPreviewHeight,"")+"";
+		
+		 xjcs=icfg.read_xjcs(cfg.getInt(icfg.currentCameraId,0));
+		edit_ImageQualit.setText(""+xjcs.imageQuality);
+		 edit_RefreshRate.setText(""+xjcs.refreshRate);
+		 String previewSize=xjcs.iPreviewWidth+"x"+xjcs.iPreviewHeight;
 		 tv_setPreviewSize.setText(previewSize);
 	}
 			
@@ -64,8 +64,13 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 			
 	void actClientXJCS_btn_OK()
 	{
-		cfg.putString(icfg.xjcsImageQuality,edit_ImageQualit.getText());
-		cfg.putString(icfg.xjcsRefreshRate, edit_RefreshRate.getText());
+		
+		xjcs.imageQuality=Byte.valueOf(edit_ImageQualit.getText().toString());
+		xjcs.refreshRate=Short.valueOf(edit_RefreshRate.getText().toString());
+		
+		int a=cfg.getInt(icfg.currentCameraId,0);
+		icfg.save_xjcs(xjcs, a);
+		
 		this.setResult(123);
 		this.finish();
 		
@@ -85,7 +90,7 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 		String hs[]=new String[sizes.length];
 		
 		
-		
+		int select=0;
 		
 		
 		//ff.sc("sizes",sizes);
@@ -96,25 +101,23 @@ public class xUI_ClientXJCS  extends ActionBarActivity
 			{
 				ws[i]=strs[0];
 				hs[i]=strs[1];
+				if(Short.valueOf(ws[i])==xjcs.iPreviewWidth&&Short.valueOf(hs[i])==xjcs.iPreviewHeight)
+				{
+					select=i;
+				}
+				
 				
 			}ff.scErr("if(strs!=null && strs.length==2)");
 			
 			
 		}
-		int index=dhk.singleChoiceDialog(sizes, 0, "", "Ok");
+		int index=dhk.singleChoiceDialog(sizes, select, "", "Ok");
 		if(index==-1)return;
 		
-		cfg.putString(icfg.xjcsPreviewWidth,ws[index]);
-		cfg.putString(icfg.xjcsPreviewHeight,hs[index]);
-		tv_setPreviewSize.setText(ws[index]+"x"+hs[index]);
+		xjcs.iPreviewWidth=Short.valueOf(ws[index]);
+		xjcs.iPreviewHeight=Short.valueOf(hs[index]);
 		
-/*		gsh.clear();
-		gsh.cmd=command.ML_VIDEOMONITORING_SETWH;
-		gsh.csA=Integer.valueOf(ws[index]);
-		gsh.csB=Integer.valueOf(hs[index]);
-		mysoc2.send(gsh);
-		ff.sc(ws[index]);
-		ff.sc(hs[index]);*/
+		tv_setPreviewSize.setText(ws[index]+"x"+hs[index]);
 		
 	}
 	

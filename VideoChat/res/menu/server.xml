@@ -8,10 +8,25 @@
         android:orderInCategory="100"
         android:title="激活屏幕锁"
         app:showAsAction="never"/>
+              
+                    <item
+        android:id="@+id/menuServer_WIFIIP"
+        android:orderInCategory="100"
+        android:title="ip"
+        app:showAsAction="never"/>
     
+                                     <item
+        android:id="@+id/menuServer_changeWifiIp"
+        android:orderInCategory="100"
+        android:title="ip"
+        app:showAsAction="never"/>
+    
+                    
+                    
            <item
         android:id="@+id/menuServer_setting"
         android:orderInCategory="100"
+        android:visible="false"
         android:title="设置"
         app:showAsAction="never"/>
 

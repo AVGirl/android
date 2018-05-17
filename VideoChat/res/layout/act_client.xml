@@ -24,8 +24,8 @@
 android:layout_width="wrap_content"
 android:layout_weight="1"
 android:text="连接服务器"
-android:textSize="16sp"
-android:layout_height="wrap_content"
+android:textSize="20sp"
+android:layout_height="99dp"
 />
 	        
 	        	        <Button 
@@ -33,6 +33,7 @@ android:layout_height="wrap_content"
         android:id="@+id/actClient_btn_disconnect"
         android:onClick="onClick"
 android:layout_width="wrap_content"
+android:visibility="gone"
 android:text="断开连接"
 android:textSize="16sp"
 android:layout_height="wrap_content"
@@ -48,6 +49,7 @@ android:layout_height="wrap_content"
         android:id="@+id/actClient_btn_test"
         android:onClick="onClick"
 android:layout_width="match_parent"
+android:visibility="gone"
 android:text="卸载"
 android:textSize="16sp"
 android:layout_height="wrap_content"
@@ -89,14 +91,22 @@ android:layout_height="wrap_content"
     
    <!--       android:background="@drawable/bj" android:scaleType="fitXY" -->
         <ImageView 
-          
           android:background="@android:color/background_dark"
-          android:scaleType="center"
+     android:id="@+id/actClient_img_preview"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    />
+    
+        <!--         <ImageView 
+          android:src="@drawable/offline"
+          android:background="@android:color/background_dark"
+android:scaleType="centerInside"
 
      android:id="@+id/actClient_img_preview"
-    android:layout_width="200dp"
-    android:layout_height="200dp"
-    />
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="0.99"
+    /> -->
     
     
            <!--  <ImageView 

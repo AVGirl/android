@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import org.apache.http.MethodNotSupportedException;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -42,18 +44,23 @@ import mylib.cfg;
 import mylib.command;
 
 
-public class xUI_Client extends ActionBarActivity implements android.view.View.OnClickListener,mylib.MySocket.OnRecvSendHead,mylib.MySocket.SocketError{
+public class xUI_Client extends ActionBarActivity implements android.view.View.OnClickListener,mylib.MySocket.OnSocketReceivedData,mylib.MySocket.SocketError{
 
 	ImageView img_preview;
 	FF ff;
-	XJCS xjcs=new XJCS();
-	byte[]ClientBuffer=new byte[1024*1024*5];
-	 MySocket msoc=new MySocket();
+	//XJCS xjcs=new XJCS();
+	
+	byte[]recvBuffer=new byte[1024*1024*5];
+	
+	 MySocket csoc=new MySocket();
 	SendHead gsh=new SendHead();
 	DHK dhk;
 	private ClientHandler chan;
 	Button actClient_btn_connect;
 	LinearLayout ll_control;
+	private Bitmap Gbmp=null;
+	boolean bAuto_gc=false;
+	Object sync_Gbmp = new Object();
 	
 	void bindView()
 	{
@@ -61,6 +68,14 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		actClient_btn_connect=(Button) findViewById(R.id.actClient_btn_connect);
 		ll_control=(LinearLayout) this.findViewById(R.id.actClient_ll_control);
 
+		
+		
+		if(cfg.getInt(icfg.menuClient_videoSize)==icfg.menuClient_videoSize_CENTER)menuClient_videoSize_raw();else menuClient_videoSize_fullScreen();
+
+		
+		bAuto_gc=cfg.getBoolean(icfg.bAuto_gc,true);
+
+		
 		
 		ll_control.bringToFront();
 	} 
@@ -73,16 +88,16 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		ll.addView(img_preview);
 	}
 	
-	boolean isConnect()
+	boolean isConnected()
 	{
 		boolean b=true;
-		if(msoc.socket==null)b=false;
+		if(csoc.socket==null)b=false;
 		if(!b)
 		{
 			ff.sc("未连接");
 			return b;
 		}
-		if(msoc.isIOException==true)b=false;
+		if(csoc.isIOException==true)b=false;
 		if(!b)
 		{
 			ff.sc("未连接");
@@ -146,22 +161,25 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	}
 	
  
-	
-	
+	public  static Context  mContext;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.act_client);
 		ff=new FF(this,this);
+		mContext=this;
 		dhk=new DHK(this);
 		chan=new ClientHandler ();
+		chan.sendEmptyMessage(chan.msgLoop);
+
 		bindView();
 	//	ActManager.getActManager().pushActivity(this);
 		
 		//img_preview_rotate();
 		
-		connectServer();
+		
+		if(connectServer(cfg.getString(icfg.menuClient_inputIp,null))==false)menuClient_inputIp();
 		//do_actClient_btn_connect();
 		//try {Thread.sleep(300);} catch (Exception e) {}
 	//	menuClient_setting();
@@ -179,62 +197,102 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		return true;
 	}
 	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		//dhk.dhk("aaaaaaaa");
+		 boolean b=isConnected();
+		 boolean b5;
+		 
+		 
+		 
+		 menu.findItem(R.id.menuClient_videoSize_raw).setEnabled(b);
+		 menu.findItem(R.id.menuClient_videoSize_fullScreen).setEnabled(b);
+		 
+		 
+		 
+		 
+		 menu.findItem(R.id.menuClient_ML_CLOSEDISPLAY).setEnabled(b);
+		 menu.findItem(R.id.menuClient_ML_VIDEOMONITORING_SERVER_LOCK_UI).setEnabled(b);
+		 menu.findItem(R.id.menuClient_ML_VIDEOMONITORING_SERVER_UNLOCK_UI).setEnabled(b);
+
+		 
+		 menu.findItem(R.id.menuClient_sendPowerShutdown).setEnabled(b);
+		 menu.findItem(R.id.menuClient_shutdownServer).setEnabled(b);
+		 menu.findItem(R.id.menuClient_setting).setEnabled(b);
+		 
+		 
+		 int i=cfg.getInt(icfg.currentCameraId,0);
+		 MenuItem mi= menu.findItem(R.id.menuClient_openBackCamera).setEnabled(b);
+		 mi.setChecked(false);
+		 if(i==0)mi.setChecked(true);
+		  mi= menu.findItem(R.id.menuClient_openFrontCamera).setEnabled(b);
+		 mi.setChecked(false);
+		 if(i==1)mi.setChecked(true);
+		 
+		 
+		  mi= menu.findItem(R.id.menuClient_Auto_gc).setEnabled(b);
+		 b5=cfg.getBoolean(icfg.bAuto_gc,true);
+		 mi.setChecked(b5);
+
+		 
+		 if(b)
+		 {
+			 gsh.clear();
+			 gsh.cmd=command.ML_PHONE_GetBatteryLevel;
+			SendHead sh= csoc.rsend_sh(gsh);
+			if(sh!=null) menu.findItem(R.id.menuClient_serverCurrentBatteryLevel).setTitle("服务:电量:"+sh.csB+"%");
+		 }
+		 
+		
+		
+		 
+		 //menuClient_serverCurrentBatteryLevel
+		 
+		return true;
+		
+		
+	}
 	void menuClient_setting()
 	{
-		if(!isConnect())return;
-		
-		cfg.putString(icfg.xjcsPreviewSizeData,getPreviewSize());
+		String s=getPreviewSize2();		
+		cfg.putString(icfg.xjcsPreviewSizeData,s);
 		Intent yt=new Intent(this,xUI_ClientXJCS.class);
 		startActivityForResult(yt,123);
 	}
 
-	void setCameraParameter()
-	{
-		
-		//mysoc2.xsend_ML_SERVER_SOCKET_STOP();
-		
-		gsh.clear();
-		gsh.cmd=command.ML_VIDEOMONITORING_IMAGE_QUALITY;
-		gsh.csA=cfg.getInt_fromStr(icfg.xjcsImageQuality,50);
-		msoc.send(gsh);
-		
-		gsh.clear();
-		gsh.cmd=command.ML_VIDEOMONITORING_REFRESH_RATE;
-		gsh.csA=cfg.getInt_fromStr(icfg.xjcsRefreshRate,100);
-		msoc.send(gsh);
-		
 	
-		gsh.clear();
-		gsh.cmd=command.ML_VIDEOMONITORING_SETPREVIEWSIZE;
-		gsh.csA=cfg.getInt_fromStr(icfg.xjcsPreviewWidth,0);
-		gsh.csB=cfg.getInt_fromStr(icfg.xjcsPreviewHeight,0);
-		xjcs.iPreviewWidth=gsh.csA;
-		xjcs.iPreviewHeight=gsh.csB;
-		
-		//String ee="setCameraParameter=="+gsh.csA+"  "+gsh.csB;
-		//ff.toast(ee);
-		
-		if(	gsh.csA<0)return;
-		msoc.send(gsh);
-		
-	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		if(requestCode==123)setCameraParameter();
+		if(resultCode==123)
+		{
+			openCamera(cfg.getInt(icfg.currentCameraId,0));
+		}
 	}
 	
-	void openCamera(boolean front)
+	boolean setCameraParameter(int cameraid)
 	{
+		XJCS xjcs1 =icfg.read_xjcs(cameraid);
+		csoc.sendCmd(command.ML_VIDEOMONITORING_SET_CAMERAID, cameraid, 0, 0);
+		csoc.sendCmd(command.ML_VIDEOMONITORING_IMAGE_QUALITY, xjcs1.imageQuality, 0, 0);
+		csoc.sendCmd(command.ML_VIDEOMONITORING_REFRESH_RATE, xjcs1.refreshRate, 0, 0);
+		return csoc.sendCmd(command.ML_VIDEOMONITORING_SETPREVIEWSIZE, xjcs1.iPreviewWidth, xjcs1.iPreviewHeight, 0);
+	}
+	
+	
+	
+	void openCamera(int cid)
+	{
+		//必须停止相机
+		csoc.rsend(command.ML_VIDEOMONITORING_CAMERA_STOP);
 		
-		gsh.clear();
-		gsh.cmd=command.ML_VIDEOMONITORING_OPEN_BACK_CAMERA;
-		if(front)gsh.cmd=command.ML_VIDEOMONITORING_OPEN_FRONT_CAMERA;
-		msoc.send(gsh);
-		if(front)img_preview_rotate_front_();
-		if(!front)img_preview_rotate_back();
-		
+		cfg.putInt(icfg.currentCameraId, cid);
+		setCameraParameter(cid);
+		csoc.sendCmd(command.ML_VIDEOMONITORING_CAMERA_START);
+		if(cid==1)img_preview_rotate_front_();
+		if(cid==0)img_preview_rotate_back();
+		if(cfg.getInt(icfg.menuClient_videoSize)==icfg.menuClient_videoSize_CENTER)menuClient_videoSize_raw();else menuClient_videoSize_fullScreen();
 		
 	}
 
@@ -242,45 +300,103 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 	@Override
 	public void onBackPressed() 
 	{
-		msoc.shutdownSocket();
-		ClientBuffer=null;
+		csoc.shutdownSocket();
+		recvBuffer=null;
 		this.finish();
-		
 	}
 
 	void menuClient_videoSize_raw()
 	{ 
+		//cfg.putInt(icfg.img_previewCaleType, icfg.cimg_previewCaleType_center);
 		img_preview.setScaleType(ScaleType.CENTER);
+		cfg.putInt(icfg.menuClient_videoSize, icfg.menuClient_videoSize_CENTER);
 		
 	}
 	
 	void menuClient_videoSize_fullScreen()
 	{
 		img_preview.setScaleType(ScaleType.FIT_CENTER);
+		cfg.putInt(icfg.menuClient_videoSize, icfg.menuClient_videoSize_FIT_CENTER);
 	}
 	
 	
 	void menuItemSelected(int id)
 	{
 		switch (id) {
-		case R.id.menuClient_ConnectServer:connectServer();break;		
+		case R.id.menuClient_ConnectServer:connectServer(null);break;		
 		//case R.id.actClient_btn_startPreview:do_actClient_btn_startPreview();break;
-		case R.id.menuClient_openBackCamera:openCamera(false);break;
-		case R.id.menuClient_openFrontCamera:openCamera(true);break;
+		case R.id.menuClient_openBackCamera:openCamera(0);break;
+		case R.id.menuClient_openFrontCamera:openCamera(1);break;
 		
-		case R.id.menuClient_shutdownServer:msoc.sendCmd(command.ML_EXITPROCESS);break;
-		case R.id.menuClient_sendPowerShutdown:msoc.sendCmd(command.ML_POWER_Shutdown);break;
+		case R.id.menuClient_shutdownServer:csoc.sendCmd(command.ML_EXITPROCESS);break;
+		case R.id.menuClient_sendPowerShutdown:csoc.sendCmd(command.ML_POWER_Shutdown);break;
 		case R.id.menuClient_setting:menuClient_setting();break;
 		//case R.id.menuClient_serverReboot:msoc.sendCmd(command.ML_SERVER_REBOOT); break;
 		case R.id.menuClient_videoSize_raw:menuClient_videoSize_raw(); break;
 		case R.id.menuClient_videoSize_fullScreen:menuClient_videoSize_fullScreen(); break;
-		case R.id.menuClient_disconnect:msoc.sendCmd(command.ML_VIDEOMONITORING_RESTART_SERVER); break;
+		case R.id.menuClient_disconnect:csoc.sendCmd(command.ML_VIDEOMONITORING_RESTART_SERVER); break;
 		//case R.id.menuClient_serverReboot:msoc.sendCmd(command.ML_VIDEOMONITORING_RESTART_SERVER); break;
-		case R.id.menuClient_ML_CLOSEDISPLAY:msoc.sendCmd(command.ML_CLOSEDISPLAY); break;
-		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_LOCK_UI:msoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_LOCK_UI); break;
-		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_UNLOCK_UI:msoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_UNLOCK_UI); break;
+		case R.id.menuClient_ML_CLOSEDISPLAY:csoc.sendCmd(command.ML_CLOSEDISPLAY); break;
+		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_LOCK_UI:csoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_LOCK_UI); break;
+		case R.id.menuClient_ML_VIDEOMONITORING_SERVER_UNLOCK_UI:csoc.sendCmd(command.ML_VIDEOMONITORING_SERVER_UNLOCK_UI); break;
+		case R.id.menuClient_test:menuClient_test___0a0a0aaaaaaaaaaaaaaaaaaaaaaaaaaaa0a();break;
+		case R.id.menuClient_inputIp:menuClient_inputIp();break;
+		
+		
+		case R.id.menuClient_Auto_gc:
+		{
+			bAuto_gc=bAuto_gc?false:true;
+			cfg.putBoolean(icfg.bAuto_gc, bAuto_gc);
+		}break;
+		//case R.id.menuClient_options:menuClient_options();break;
+		
 
+	
 		}
+		
+	}
+
+/*	private void menuClient_options() 
+	{
+		String [] menus=new String[2];
+		menus[0]="手动输入目标ip";
+		menus[1]="自动释放内存";
+		csoc.rsend(command.ML_VIDEOMONITORING_CAMERA_STOP);
+		int sel= dhk.singleChoiceDialog(menus, 0, null, null);
+		if(sel==-1)
+		{
+			csoc.sendCmd(command.ML_VIDEOMONITORING_CAMERA_START);
+			return;
+		}
+		
+		if(sel==0)	menuClient_inputIp();
+		if(sel==1)bAuto_gc=bAuto_gc?false:true;
+
+		
+		
+		csoc.sendCmd(command.ML_VIDEOMONITORING_CAMERA_START);
+		
+	}*/
+	private void menuClient_inputIp() 
+	{
+		if(csoc!=null)	csoc.shutdownSocket();
+		
+		String iip= cfg.getString(icfg.menuClient_inputIp,"");
+		String s= dhk.inputDialog(iip, null, "wifi热点为本机则可用", null, null);
+		if(s==null)return;
+		cfg.putString(icfg.menuClient_inputIp, s);
+		connectServer(s);
+		
+	}
+	void menuClient_test___0a0a0aaaaaaaaaaaaaaaaaaaaaaaaaaaa0a()
+	{
+		if (1 > 0){return;};
+		//menuClient_setting();
+		String s=getPreviewSize2();
+		if(s==null)
+		{
+			ff.sc("getPreviewSize2()==null");
+		}else ff.sc("getPreviewSize2==",s.length());
 		
 	}
 	
@@ -296,13 +412,15 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		
 	}
 
-	boolean  connectServer()
+	boolean  connectServer(String ip)
 	{
-		if(msoc.socket!=null){if(msoc.isIOException==false)return true;}
-		
+		if(csoc.socket!=null){if(csoc.isIOException==false)return true;}
 		//ff.toast("开始连接...");
+	//	Socket soc=csoc.connectToServer("192.168.43.1",1234);
+		if(ip==null)ip=new String("192.168.43.1");
+		Socket soc=csoc.connectToServer(ip,1234);
 		
-		Socket soc=msoc.connectToServer("192.168.43.1",1234);
+		  
 		if(soc==null)
 		{
 			ff.xxk("连接失败");
@@ -310,14 +428,12 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 			return false;
 		}
 		
-		msoc.toNetMsg=false;
-		msoc.initSocket(soc);
-		msoc.setOnRecvSendHead(this);
-		msoc.setSocketError(this);
-		msoc.startRecvSendHead_buffer(ClientBuffer);
-		setCameraParameter();
+		csoc.toNetMsg=false;
+		csoc.initSocket(soc);
+		csoc.setOnRecvSendHead(this);
+		csoc.setSocketError(this);
+		csoc.startRecv(recvBuffer);
 		ff.setTitle("已连接 ");
-	
 		return true;
 		
 		
@@ -350,34 +466,56 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		//ff.toast("ddddddddd");
 		//ff.sc("	img_preview_rotate_front_();");
 		//img_preview_rotate_front_();
-		openCamera(true);
+		openCamera(1);
 		
 	} 
 	
 	void actClient_btn_backCamera()
 	{
 		//img_preview_rotate_back();
-		 openCamera(false);
+		 openCamera(0);
 		
 	}
+	
+	
+	void temp__0x0x0x0x0x0x00xx0()
+	{
+		 gsh.clear();
+		 gsh.cmd=command.ML_PHONE_GetBatteryLevel;
+		SendHead sh= csoc.rsend_sh(gsh);
+		ff.setTitle(sh.csB);
+		//ff.toast( sh.csB);
+		//if(sh!=null) menu.findItem(R.id.).setTitle("电量："+sh.csB+"%");
+		 
+		
+/*		ff.toast(getPreviewSize2());
+		
+		if (1 > 0){return;};
+		gsh.clear();
+		gsh.cmd=command.ML_VIDEOMONITORING_SERVER_PAUSE;
+		ff.setTitle("等待回复");
+		//、、ff.xxk("ddddd");
+		//if (1 > 0){return;};
+		ff.sc("send2,,,,",csoc.rsend(gsh,null,0,null));*/
+		
+	}
+	
+	
 	@Override
 	public void onClick(View v) {
 		
 		
-		if(v.getId()==R.id.actClient_btn_disconnect)
+		if(v.getId()== R.id.actClient_btn_disconnect)
 		{
-			ff.sc(	 getPreviewSize());
-			
+			temp__0x0x0x0x0x0x00xx0();
 			return;
 		}
-		
-		
-		
+		 
 		//ff.toast("	public void onClick(View v) {");
 		switch (v.getId()) 
 		{ 
-
-		case R.id.actClient_btn_connect:connectServer();	break;
+   
+		case R.id.actClient_btn_connect:connectServer(null);	break;
 		case R.id.actClient_btn_test: tools.uninstallApk(this,this.getPackageName());
 		case R.id.actClient_btn_disconnect:menuItemSelected(R.id.menuClient_disconnect);break;
 		case R.id.actClient_btn_backCamera:menuItemSelected(R.id.menuClient_openBackCamera);break;
@@ -401,12 +539,38 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		
 	} 
 //---------------------------------------------------------------------------------------
+	
 	@Override
-	public boolean onRecvSendHead(SendHead sh, byte[] data) 
+	public boolean onSocketReceivedData(SendHead sh, byte[] data,MySocket ___sssss) 
 	{
 		switch (sh.cmd) {  
-		case command.ML_FILE_Picture:do_ML_FILE_Picture(sh, data);break;
+		case command.ML_FILE_Picture:
+			{
+				
+				//chan.setImgPreviewShowBitmap(BitmapFactory.decodeByteArray(data, 0, sh.size));
+				//synchronized (sync_Gbmp) 
+			//	{
+		/*		Message msg11=Message.obtain();
+				msg11.obj=data;
+				msg11.what=chan.msgImgPreviewShowBitmap;
+				msg11.arg1=sh.size;
+				chan.sendMessage(msg11);*/
+					 Gbmp=BitmapFactory.decodeByteArray(data, 0, sh.size);
+					 chan.sendEmptyMessage(chan.msgImgPreviewShowBitmap);
+			//	}
+			/*	synchronized (sync_Gbmp) 
+				{
+					try {
+						sync_Gbmp.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+	*/
+			}break;
+			
 	 
+		
 		
 		default:
 			break;
@@ -420,22 +584,21 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 
 	void do_ML_FILE_Picture(SendHead sh, byte[] data) 
 	{
-			Message msg=new Message();                                                                                                
-			Bitmap bmp=BitmapFactory.decodeByteArray(data, 0, sh.size);
+			//Message msg=new Message();              
 		
-			msg.what=chan.msgImgPreviewShowBitmap;
+			/*msg.what=chan.msgImgPreviewShowBitmap;
 			msg.obj=bmp;
 			chan.sendMessage(msg);
-			data=null;          
+			data=null;        */  
 			//System.gc();
 			
 			
 	}
-	
+/*	
 	String getPreviewSize()
 	{
 	
-		if(!isConnect())return "";
+		if(!isConnect())return null;
 		
 		msoc.recv_pause();
 		
@@ -445,46 +608,62 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 		 sh= msoc.recvHead();	
 		 
 		 
-		  if(sh.cmd!=command.ML_VIDEOMONITORING_getSupportedPreviewSizes)return "";
+		  if(sh.cmd!=command.ML_VIDEOMONITORING_getSupportedPreviewSizes)
+		  {
+			  ff.sc(" if(sh.cmd!=command.ML_VIDEOMONITORING_getSupportedPreviewSizes)",sh.cmd);
+			  return null;
+			  
+		  }
 		  byte[] backData=new byte[sh.size];    
+		  
 		  msoc.recv(backData, sh.size);
 		  
 		msoc.recv_continue();
 		return new String(backData);
 		
 	}
+	*/
+	String getPreviewSize2()
+	{ 
+		gsh.clear();
+		gsh.cmd=command.ML_VIDEOMONITORING_GetSupportedPreviewSizes;
+		byte[] backData=new byte[1000];   
+		gsh=csoc.rsend(gsh,null,0,backData);
+		
+		//ff.sc("getPreviewSize*----",gsh.size);
+		if(gsh==null || gsh.size==0)
+		{
+			ff.sc("if(gsh.size==0)	");
+			return null;
+		}
+	//	ff.sc("new Stri---",new String(backData, 0, gsh.size));
+		return new String(backData, 0, gsh.size);
+		
+	}
 	
-	void setPreviewSize()
+/*	void setPreviewSize()
 	{
-		/*mysoc2.xsend_ML_CLIENT_SOCKET_STOP();
-		SendHead sh=new SendHead();
-		gsh.cmd=command.ML_VIDEOMONITORING_getSupportedPreviewSizes;
-		mysoc2.send(gsh);
-		  sh= mysoc2.recvHead();
-			
-		  if(sh.cmd!=command.ML_VIDEOMONITORING_getSupportedPreviewSizes)return;
-		  byte[] backData=new byte[sh.size];
-		  mysoc2.recv(backData, sh.size);
-		String jg=new String(backData);
-		ff.sc(jg);*/
 		Message msg=new Message();
 		msg.what=ClientHandler.msgSetPreviewSize;
 		msg.obj=getPreviewSize();
 		chan.sendMessage(msg);
 
 		
-	}
+	}*/
 	
 
 	
 	class ClientHandler extends Handler
 	{
 		
-		public static final int msgSetPreviewSize=300;
+		//public static final int msgSetPreviewSize=300;
 		public static final int msgImgPreviewShowBitmap=301;
 		public static final int msgImg_preview_rotate=302;
 		public static final int msgSetTitle=304;
 		public static final int msgSocketError=305;
+		
+		public static final int msgLoop=306;
+		
 		
 		
 		
@@ -498,37 +677,16 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 			msg.what=msgSetTitle;
 			this.sendMessage(msg);
 		}
+
 		
-		
-		void setPreviewSize(String jg)
+		public void setImgPreviewShowBitmap(Object o)
 		{
-			
-			String sizes[]= jg.split(";");
-			if(sizes==null){ff.sc("sizes==null");return;}
-			
-			String ws[]=new String[sizes.length];
-			String hs[]=new String[sizes.length];
-			
-			for (int i = 0; i < sizes.length; i++) 
-			{
-				String strs[]= sizes[i].split("x");
-				ws[i]=strs[0];
-				hs[i]=strs[1];
-			}
-			
-			
-			int index=dhk.singleChoiceDialog(sizes, 0, "", "Ok");
-			if(index==-1)return;
-			
-			gsh.clear();
-			gsh.cmd=command.ML_VIDEOMONITORING_SETWH;
-			gsh.csA=Integer.valueOf(ws[index]);
-			gsh.csB=Integer.valueOf(hs[index]);
-			msoc.send(gsh);
-			ff.sc(ws[index]);
-			ff.sc(hs[index]);
-			
+			Message msg5=new Message();
+			msg5.obj=o;
+			msg5.what=msgImgPreviewShowBitmap;
+			this.sendMessage(msg5);
 		}
+	
 		
 		
 		void doMsgSocketError()
@@ -549,20 +707,78 @@ public class xUI_Client extends ActionBarActivity implements android.view.View.O
 			
 		}
 		
+		
+/*	case msgImgPreviewShowBitmap:{
+		
+		img_preview.setImageBitmap(Gbmp);
+		if(Gbmp != null && !Gbmp.isRecycled()){  
+			Gbmp.recycle();  
+			Gbmp = null;  
+		}  
+		Gbmp = null;
+		if(bAuto_gc)System.gc();
+		synchronized (sync_Gbmp) {
+			sync_Gbmp.notify();
+			System.gc();
+		}
+		//ff.sc("w=="+((Bitmap) msg.obj).getWidth(),((Bitmap) msg.obj).getHeight());
+		//img_preview.setImageBitmap((Bitmap) msg.obj);
+		//msg.obj==null;
+		break;
+		}*/
+		
+		/*public void bitloop()
+		{
+			while(true)
+			{
+			//	dhk.dhk("f");
+				try {Thread.sleep(1);} catch (Exception e) {}
+				if(Gbmp!=null)
+				{
+					img_preview.setImageBitmap(Gbmp);
+					Gbmp = null;
+					if(bAuto_gc)System.gc();
+				}
+			}
+			
+		}*/
+		
 		@Override
 		public void handleMessage(Message msg) 
 		{
 			
 			switch (msg.what) {
-			case msgSetPreviewSize:setPreviewSize((String) msg.obj);break;
+			//case msgSetPreviewSize:setPreviewSize((String) msg.obj);break;
 			
 			case msgSocketError:doMsgSocketError();break;
 			case msgSetTitle:ff.setTitle((String) msg.obj);break;
+			
 			case msgImgPreviewShowBitmap:{
-				//ff.sc("w=="+((Bitmap) msg.obj).getWidth(),((Bitmap) msg.obj).getHeight());
+			img_preview.setImageBitmap(Gbmp);
+			Gbmp = null;
+			if(bAuto_gc)System.gc();
+			}break;
+			
+			
+			/*
+			case msgImgPreviewShowBitmap:{
+				
+				img_preview.setImageBitmap(BitmapFactory.decodeByteArray((byte[])msg.obj, 0,msg.arg1));
+				Gbmp = null;
+				if(bAuto_gc)System.gc();
+				}break;
+				*/
+				
+			
+			
+			
+			
+			//case msgLoop:bitloop();break;
+		/*	case msgImgPreviewShowBitmap:
+			{
 				img_preview.setImageBitmap((Bitmap) msg.obj);
-				break;
-				}
+				if(bAuto_gc)System.gc();
+			}*/
 			
 			
 			//case msgImg_preview_rotate:img_preview_rotate_back();break;
@@ -580,11 +796,11 @@ void xjStartPreview()
 {
 	gsh.clear();
 	gsh.cmd=command.ML_VIDEOMONITORING_START_PREVIEW;
-	msoc.send(gsh);
+	csoc.send(gsh);
 	
 }
 @Override
-public void socketError(short what,Socket s1) 
+public void socketError(short what,Socket s1)  
 {
 	ff.sc("socketError",what);
 	chan.sendEmptyMessage(chan.msgSocketError);
